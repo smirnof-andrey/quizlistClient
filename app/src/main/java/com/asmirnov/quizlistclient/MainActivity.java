@@ -1,10 +1,15 @@
 package com.asmirnov.quizlistclient;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -14,11 +19,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.fragments.AccountFragment;
+import com.asmirnov.quizlistclient.fragments.MainFragment;
+import com.asmirnov.quizlistclient.fragments.SearchFragment;
 import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.ServerQuery;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,71 +50,105 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListView listOfModules;
 
     private  TextView tokenView;
+
     private  TextView textInfo;
 
     private EditText textId;
-    private EditText username;
-    private EditText password;
     private EditText moduleName;
     private EditText moduleInfo;
+
+    private EditText username;
+    private EditText password;
     private EditText httpURL;
+
+    private Button buttonGetToken;
 
     private Button buttonGetModules;
     private Button buttonGetModuleById;
-    private Button buttonGetToken;
     private Button buttonDeleteModule;
     private Button buttonCreateModule;
     private Button buttonUpdateModule;
 
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            Fragment currentFragment = null;
+            switch(menuItem.getItemId()){
+                case R.id.navigation_home:
+                    currentFragment = new MainFragment();
+                   break;
+                case R.id.navigation_search:
+                    currentFragment = new SearchFragment();
+                    break;
+                case R.id.navigation_account:
+                    currentFragment = new AccountFragment();
+                    break;
+            }
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container,currentFragment)
+                    .commit();
+            return true;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tokenView = (TextView) findViewById(R.id.tokenView);
-        textInfo = (TextView) findViewById(R.id.textInfo);
+//        tokenView = (TextView) findViewById(R.id.tokenView);
+//        textInfo = (TextView) findViewById(R.id.textInfo);
+//
+//        textId = (EditText) findViewById(R.id.editText);
+//        username = (EditText) findViewById(R.id.editUsername);
+//        password = (EditText) findViewById(R.id.editPassword);
+//        moduleName = (EditText) findViewById(R.id.editModuleName);
+//        moduleInfo = (EditText) findViewById(R.id.editModuleInfo);
+//        httpURL = (EditText) findViewById(R.id.httpURL);
+//
+//        buttonGetModules = (Button) findViewById(R.id.buttonGetModules);
+//        buttonGetModuleById = (Button) findViewById(R.id.buttonGetModuleById);
+//        buttonGetToken = (Button) findViewById(R.id.buttonGetToken);
+//        buttonDeleteModule = (Button) findViewById(R.id.buttonDeleteModule);
+//        buttonCreateModule = (Button) findViewById(R.id.buttonCreateModule);
+//        buttonUpdateModule = (Button) findViewById(R.id.buttonUpdateModule);
+//
+//        listOfModules = (ListView) findViewById(R.id.listView);
+//
+//        URL = httpURL.getText().toString();
+//        httpURL.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                URL = httpURL.getText().toString();
+//            }
+//        });
+//
+//        buttonGetToken.setOnClickListener(this);
+//        buttonGetModules.setOnClickListener(this);
+//        buttonGetModuleById.setOnClickListener(this);
+//        buttonDeleteModule.setOnClickListener(this);
+//        buttonCreateModule.setOnClickListener(this);
+//        buttonUpdateModule.setOnClickListener(this);
+//
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        textId = (EditText) findViewById(R.id.editText);
-        username = (EditText) findViewById(R.id.editUsername);
-        password = (EditText) findViewById(R.id.editPassword);
-        moduleName = (EditText) findViewById(R.id.editModuleName);
-        moduleInfo = (EditText) findViewById(R.id.editModuleInfo);
-        httpURL = (EditText) findViewById(R.id.httpURL);
-
-        buttonGetModules = (Button) findViewById(R.id.buttonGetModules);
-        buttonGetModuleById = (Button) findViewById(R.id.buttonGetModuleById);
-        buttonGetToken = (Button) findViewById(R.id.buttonGetToken);
-        buttonDeleteModule = (Button) findViewById(R.id.buttonDeleteModule);
-        buttonCreateModule = (Button) findViewById(R.id.buttonCreateModule);
-        buttonUpdateModule = (Button) findViewById(R.id.buttonUpdateModule);
-
-        listOfModules = (ListView) findViewById(R.id.listView);
-
-        URL = httpURL.getText().toString();
-        httpURL.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                URL = httpURL.getText().toString();
-            }
-        });
-
-        buttonGetToken.setOnClickListener(this);
-        buttonGetModules.setOnClickListener(this);
-        buttonGetModuleById.setOnClickListener(this);
-        buttonDeleteModule.setOnClickListener(this);
-        buttonCreateModule.setOnClickListener(this);
-        buttonUpdateModule.setOnClickListener(this);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container,new MainFragment())
+                .commit();
     }
 
     @Override
@@ -138,6 +178,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 default:
                     break;
         }
+    }
+
+    private void goToLoginPage() {
+        Intent intent = new Intent(this, ActivityCards.class);
+        startActivity(intent);
     }
 
     private void onButtonGetTokenClick(View v) {

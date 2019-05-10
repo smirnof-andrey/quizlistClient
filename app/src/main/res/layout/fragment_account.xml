@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editUsername"
+                android:layout_width="173dp"
+                android:layout_height="41dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="Vasya" />
+
+            <EditText
+                android:id="@+id/editPassword"
+                android:layout_width="174dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="123" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonGetToken"
+                android:layout_width="173dp"
+                android:layout_height="wrap_content"
+                android:text="@string/get_token" />
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/httpURL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="http://192.168.0.103:8080" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="162dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tokenView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="token" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

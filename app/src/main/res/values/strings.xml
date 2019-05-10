@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">quizlistClient</string>
+    <string name="app_name">Quizlist</string>
+    <string name="title_activity_login">ActivityLogin</string>
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_account">Account</string>
+    <string name="get_token">Login / Get token</string>
 </resources>
