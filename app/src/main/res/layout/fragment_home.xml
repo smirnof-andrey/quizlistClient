@@ -94,6 +94,12 @@
                     android:inputType="textPersonName"
                     android:text="Module name" />
 
+                <Button
+                    android:id="@+id/buttonGetModules"
+                    android:layout_width="156dp"
+                    android:layout_height="wrap_content"
+                    android:text="Get modules" />
+
                 <EditText
                     android:id="@+id/editModuleInfo"
                     android:layout_width="match_parent"
@@ -103,11 +109,6 @@
                     android:inputType="textPersonName"
                     android:text="Module info" />
 
-                <Button
-                    android:id="@+id/buttonGetModules"
-                    android:layout_width="156dp"
-                    android:layout_height="wrap_content"
-                    android:text="Get modules" />
             </LinearLayout>
 
         </LinearLayout>
