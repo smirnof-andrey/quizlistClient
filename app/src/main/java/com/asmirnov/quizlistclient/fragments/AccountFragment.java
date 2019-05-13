@@ -108,10 +108,10 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                 getToken();
                 break;
             case R.id.saveURL:
-                saveURL();
+                //saveURL();
                 break;
             case R.id.loadURL:
-                loadURL();
+                //loadURL();
                 break;
             default:
                 break;

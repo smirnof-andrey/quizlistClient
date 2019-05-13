@@ -1,5 +1,6 @@
 package com.asmirnov.quizlistclient.fragments;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,14 +9,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.ActivityCards;
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.Module;
@@ -24,7 +26,6 @@ import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.asmirnov.quizlistclient.service.ServerQuery;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -43,8 +44,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     private Module currentModule;
 
     private ArrayList<Module> modulesList;
-    private SimpleAdapter adapter;
-    private ModuleListAdapter newAdapter;
+    private ModuleListAdapter adapter;
 
     private ListView listViewModules;
 
@@ -86,13 +86,26 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         buttonCreateModule.setOnClickListener(this);
         buttonUpdateModule.setOnClickListener(this);
 
-        // list
+        // module list
         modulesList = new ArrayList<>();
         modulesList.add(new Module("no modules","no modules info"));
+        adapter = new ModuleListAdapter(getActivity(), modulesList);
+        listViewModules.setAdapter(adapter);
 
-        newAdapter = new ModuleListAdapter(getActivity(), modulesList);
+        listViewModules.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View itemClicked, int position,
+                                    long id) {
+                try{
+                    currentModule = modulesList.get((int)id);
+                }catch (Exception e){
 
-        listViewModules.setAdapter(newAdapter);
+                }
+                Intent intent = new Intent(getActivity(), ActivityCards.class);
+                intent.putExtra("currentModuleName", currentModule.getName());
+                startActivity(intent);
+            }
+        });
 
         return v;
     }
@@ -101,6 +114,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getUserModules();
     }
 
     private void refreshMyHttpService() {
@@ -131,18 +145,16 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private void refreshMyList(){
+    private void refreshMyListByTestValues(){
         modulesList.clear();
-        modulesList.add(new Module("module 1","!module 1 info"));
-        modulesList.add(new Module("module 2","!module 2 info"));
-        modulesList.add(new Module("module 3","!module 3 info"));
+        for (int i = 0; i < 30;) {
+            modulesList.add(new Module("test module "+ ++i,"!test module info"+i));
+        }
 
-        newAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
     private void getUserModules() {
-
-        refreshMyList();
 
         refreshMyHttpService();
 
@@ -170,49 +182,35 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
                     List<Module> modules = response.body();
 
-                    String[] moduleNamesList = new String[modules.size()];
+                    modulesList.clear();
+                    modulesList.addAll((ArrayList<Module>) modules);
 
-                    for (int i = 0; i < modules.size(); i++) {
-                        moduleNamesList[i] = "["+modules.get(i).getId()+"], "+modules.get(i).getName();
-                        modulesList.add(new Module(modules.get(i).getName(),modules.get(i).getInfo()));
-                    }
+                    adapter.notifyDataSetChanged();
 
-                    listViewModules.setAdapter(
-                            new ArrayAdapter<String>(
-                                    getActivity().getApplicationContext(),  // maybe change for smth shorter?
-                                    android.R.layout.simple_list_item_1,
-                                    moduleNamesList
-                            ) {
-                                @Override
-                                public View getView(int position, View convertView, ViewGroup parent) {
-                                    View view = super.getView(position, convertView, parent);
-
-                                    TextView textView = (TextView) view.findViewById(android.R.id.text1);
-
-                                    textView.setTextColor(Color.BLUE);
-
-                                    return view;
-                                }
-                            }
-                    );
                     textInfo.setText("Congrats, Success!");
 
-                      /*      String json = response.body().toString();
-                            Gson gson = new GsonBuilder().create();
+//                            String json = response.body().toString();
+//                            Gson gson = new GsonBuilder().create();
+//
+//                            Type type = new TypeToken<List<Module>>(){}.getType();
+//                            List<Module> modules = gson.fromJson(json, type);
+//
+//                            ///
+//
+//                            Gson gson = new Gson();
+//                            String data = gson.toJson(response.body)
+//                            ToolsItem toolsItem = gson.fromJson(data,ToolsItem.class);
+//                            toolItem.mConstructor(response.body());
 
-                            Type type = new TypeToken<List<Module>>(){}.getType();
-                            List<Module> modules = gson.fromJson(json, type);
-
-                            ///
-
-                            Gson gson = new Gson();
-                            String data = gson.toJson(response.body)
-                            ToolsItem toolsItem = gson.fromJson(data,ToolsItem.class);
-                            toolItem.mConstructor(response.body());
-
-                            */
                 }else{
-                    textInfo.setText("not success, server response code:"+response.raw().code());
+                    int rawCode = response.raw().code();
+                    switch (rawCode){
+                        case 500:{
+                            // we have to refresh token
+                            break;
+                        }
+                    }
+                    textInfo.setText("not success, server response code:"+rawCode);
                 }
             }
 
