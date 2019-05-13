@@ -7,4 +7,5 @@
     <string name="get_token">Login / Get token</string>
     <string name="saveURL">save URL</string>
     <string name="loadURL">load URL</string>
+    <string name="defaultURL">http://192.168.0.103:8080</string>
 </resources>

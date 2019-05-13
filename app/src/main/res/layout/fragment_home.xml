@@ -9,7 +9,27 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="631dp"
+            android:layout_width="wrap_content"
+            android:layout_height="594dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="410dp">
+
+                <ListView
+                    android:id="@+id/listView"
+                    android:layout_width="373dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentBottom="true"></ListView>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="455dp"
             android:layout_weight="2"
             android:orientation="vertical">
@@ -53,7 +73,6 @@
                     android:layout_weight="1"
                     android:text="Update module" />
             </LinearLayout>
-
 
 
             <LinearLayout
@@ -111,26 +130,6 @@
 
             </LinearLayout>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="594dp"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="410dp">
-
-                <ListView
-                    android:id="@+id/listView"
-                    android:layout_width="373dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"></ListView>
-            </RelativeLayout>
         </LinearLayout>
 
     </LinearLayout>

@@ -67,9 +67,9 @@ public class MainActivity extends AppCompatActivity{
     private void createMyHttpService() {
         SharedPreferences sPref;
         sPref = getPreferences(MODE_PRIVATE);
-        String textURL = sPref.getString(SAVED_TEXT, "http://192.168.0.102:8080");
+        String textURL = sPref.getString(SAVED_TEXT, "");
 
-        String textToken = "";//sPref.getString(SAVED_TOKEN, "");
+        String textToken = sPref.getString(SAVED_TOKEN, "");
 
         // block for check token
 

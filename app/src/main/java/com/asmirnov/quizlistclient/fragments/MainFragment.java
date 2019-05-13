@@ -12,15 +12,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.service.ModuleListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.asmirnov.quizlistclient.service.ServerQuery;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -32,10 +36,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainFragment extends Fragment implements View.OnClickListener{
 
+    private static final String MODULE_NAME = "name";
+    private static final String MODULE_INFO = "info";
+
     private MyHttpService myHttpService;
     private Module currentModule;
 
-    private ListView listOfModules;
+    private ArrayList<Module> modulesList;
+    private SimpleAdapter adapter;
+    private ModuleListAdapter newAdapter;
+
+    private ListView listViewModules;
 
     private TextView textInfo;
 
@@ -67,7 +78,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         buttonCreateModule = (Button) v.findViewById(R.id.buttonCreateModule);
         buttonUpdateModule = (Button) v.findViewById(R.id.buttonUpdateModule);
 
-        listOfModules = (ListView) v.findViewById(R.id.listView);
+        listViewModules = (ListView) v.findViewById(R.id.listView);
 
         buttonGetModules.setOnClickListener(this);
         buttonGetModuleById.setOnClickListener(this);
@@ -75,7 +86,21 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         buttonCreateModule.setOnClickListener(this);
         buttonUpdateModule.setOnClickListener(this);
 
+        // list
+        modulesList = new ArrayList<>();
+        modulesList.add(new Module("no modules","no modules info"));
+
+        newAdapter = new ModuleListAdapter(getActivity(), modulesList);
+
+        listViewModules.setAdapter(newAdapter);
+
         return v;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
     }
 
     private void refreshMyHttpService() {
@@ -106,7 +131,18 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    private void refreshMyList(){
+        modulesList.clear();
+        modulesList.add(new Module("module 1","!module 1 info"));
+        modulesList.add(new Module("module 2","!module 2 info"));
+        modulesList.add(new Module("module 3","!module 3 info"));
+
+        newAdapter.notifyDataSetChanged();
+    }
+
     private void getUserModules() {
+
+        refreshMyList();
 
         refreshMyHttpService();
 
@@ -138,9 +174,10 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
                     for (int i = 0; i < modules.size(); i++) {
                         moduleNamesList[i] = "["+modules.get(i).getId()+"], "+modules.get(i).getName();
+                        modulesList.add(new Module(modules.get(i).getName(),modules.get(i).getInfo()));
                     }
 
-                    listOfModules.setAdapter(
+                    listViewModules.setAdapter(
                             new ArrayAdapter<String>(
                                     getActivity().getApplicationContext(),  // maybe change for smth shorter?
                                     android.R.layout.simple_list_item_1,
@@ -216,7 +253,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                     moduleNamesList[0] = "["+module.getId()+"], "+module.getName();
                     //}
 
-                    listOfModules.setAdapter(
+                    listViewModules.setAdapter(
                             new ArrayAdapter<String>(
                                     getActivity().getApplicationContext(),
                                     android.R.layout.simple_list_item_1,
