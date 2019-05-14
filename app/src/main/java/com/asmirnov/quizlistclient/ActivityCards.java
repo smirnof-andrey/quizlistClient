@@ -67,10 +67,8 @@ public class ActivityCards extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add("menu1");
-        menu.add("menu2");
-        menu.add("menu3");
-        menu.add("menu4");
+        menu.add("Edit");
+        menu.add("Delete");
 
         return super.onCreateOptionsMenu(menu);
     }

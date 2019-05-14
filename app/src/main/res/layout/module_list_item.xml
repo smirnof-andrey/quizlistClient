@@ -15,8 +15,9 @@
             android:id="@+id/textview_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="25sp"
+            android:gravity="center"
             android:textColor="#0000FF"
+            android:textSize="25sp"
             tools:text="Module name" />
 
         <TextView

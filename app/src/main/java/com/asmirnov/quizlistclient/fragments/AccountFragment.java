@@ -13,12 +13,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.AuthResponse;
+import com.asmirnov.quizlistclient.model.User;
 import com.asmirnov.quizlistclient.service.ServerQuery;
 import com.asmirnov.quizlistclient.service.MyHttpService;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Date;
@@ -37,7 +40,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     private final String SAVED_URL = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
+    private final String CURRENT_USER = "current_user";
 
+    private User currentUser;
+
+    private TextView tvCurrentUser;
     private TextView tokenView;
 
     private EditText username;
@@ -45,8 +52,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     private EditText httpURL;
 
     private Button buttonGetToken;
-    private Button buttonSaveURL;
-    private Button buttonLoadURL;
 
     private MyHttpService myHttpService;
 
@@ -59,18 +64,15 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         View v = inflater.inflate(R.layout.fragment_account,container,false);
 
         tokenView = (TextView) v.findViewById(R.id.tokenView);
+        tvCurrentUser = (TextView) v.findViewById(R.id.currentUser);
 
         httpURL = (EditText) v.findViewById(R.id.httpURL);
         username = (EditText) v.findViewById(R.id.editUsername);
         password = (EditText) v.findViewById(R.id.editPassword);
 
         buttonGetToken = (Button) v.findViewById(R.id.buttonGetToken);
-        buttonSaveURL = (Button) v.findViewById(R.id.saveURL);
-        buttonLoadURL = (Button) v.findViewById(R.id.loadURL);
 
         buttonGetToken.setOnClickListener(this);
-        buttonSaveURL.setOnClickListener(this);
-        buttonLoadURL.setOnClickListener(this);
 
         httpURL.addTextChangedListener(new TextWatcher() {
             @Override
@@ -91,6 +93,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         refreshMyHttpService();
 
         loadURL();
+        loadUser();
         loadToken();
 
         return v;
@@ -107,12 +110,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
             case R.id.buttonGetToken:
                 getToken();
                 break;
-            case R.id.saveURL:
-                //saveURL();
-                break;
-            case R.id.loadURL:
-                //loadURL();
-                break;
             default:
                 break;
         }
@@ -127,8 +124,26 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         httpURL.setText(getPreferences(SAVED_URL));
     }
 
+    private void loadUser() {
+        Gson gson = new Gson();
+        String json = getPreferences(CURRENT_USER);
+        try {
+            currentUser = gson.fromJson(json, User.class);
+            refreshUserShowing();
+        }catch(Exception e){
+            // no logged user
+            Toast.makeText(getActivity(), "no logged user", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void refreshUserShowing() {
+        tvCurrentUser.setText("you logged as: "+currentUser.toString());
+        username.setText(currentUser.getUsername());
+        password.setText("");
+    }
+
     private void loadToken() {
-        tokenView.setText(getPreferences(SAVED_TOKEN));
+        tokenView.setText("token:"+getPreferences(SAVED_TOKEN));
     }
 
     private void savePreferences(String attribute, String value) {
@@ -167,9 +182,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                         // do smth
                     }
                     String newToken = authResponse.getToken();
+                    User newUser = authResponse.getUser();
                     if(newToken == null || newToken.isEmpty()){
                         // do smth
                     }else{
+                        setCurrentUser(newUser);
                         setTokenInHttpHeader(newToken);
                         //getUserModules();
                     }
@@ -183,6 +200,15 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                 //Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void setCurrentUser(User newUser) {
+        currentUser = newUser;
+        refreshUserShowing();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(currentUser);
+        savePreferences(CURRENT_USER,json);
     }
 
     private void setTokenInHttpHeader(String newToken) {

@@ -37,9 +37,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainFragment extends Fragment implements View.OnClickListener{
 
-    private static final String MODULE_NAME = "name";
-    private static final String MODULE_INFO = "info";
-
     private MyHttpService myHttpService;
     private Module currentModule;
 
@@ -102,7 +99,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
                 }
                 Intent intent = new Intent(getActivity(), ActivityCards.class);
-                intent.putExtra("currentModuleName", currentModule.getName());
+                intent.putExtra("currentModuleName", currentModule.getId().toString()+". "+currentModule.getName());
                 startActivity(intent);
             }
         });

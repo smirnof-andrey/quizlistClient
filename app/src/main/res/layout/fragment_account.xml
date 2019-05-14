@@ -14,12 +14,41 @@
             android:orientation="horizontal">
 
             <EditText
+                android:id="@+id/httpURL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:ems="10"
+                android:inputType="textPersonName" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/currentUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="25sp"
+                android:text="no user" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
                 android:id="@+id/editUsername"
                 android:layout_width="173dp"
                 android:layout_height="41dp"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Vasya" />
+                android:text="username" />
 
             <EditText
                 android:id="@+id/editPassword"
@@ -27,12 +56,12 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="123" />
+                android:text="password" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
 
             <Button
@@ -41,52 +70,15 @@
                 android:layout_height="wrap_content"
                 android:text="@string/get_token" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/httpURL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:ems="10"
-                android:inputType="textPersonName" />
-
-            <Button
-                android:id="@+id/saveURL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/saveURL" />
-
-            <Button
-                android:id="@+id/loadURL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/loadURL" />
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="162dp"
-            android:orientation="horizontal">
-
             <TextView
                 android:id="@+id/tokenView"
-                android:layout_width="match_parent"
+                android:layout_width="173dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
                 android:text="token" />
 
         </LinearLayout>
+
 
     </LinearLayout>
 

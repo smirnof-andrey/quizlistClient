@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.fragments.AccountFragment;
 import com.asmirnov.quizlistclient.fragments.MainFragment;
@@ -74,7 +76,22 @@ public class MainActivity extends AppCompatActivity{
         // block for check token
 
         myHttpService = new MyHttpService(textURL,textToken);
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add("Add new module");
+        menu.add("Delete module");
+        menu.add("test: get module by id");
+        menu.add("test: update module");
+        menu.add("test: get user modules");
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        return super.onOptionsItemSelected(item);
+    }
 }

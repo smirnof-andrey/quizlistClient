@@ -7,6 +7,8 @@ public class Module {
 
     private String info;
 
+    private User author;
+
     public Module() {
     }
 
@@ -37,6 +39,14 @@ public class Module {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     @Override

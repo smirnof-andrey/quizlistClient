@@ -4,7 +4,7 @@ public class AuthResponse {
 
     private Integer id;
 
-    //private User user;
+    private User user;
     private String token;
     private String message;
     private int errorCode;    // 0 - user is found, 1 - user not found, 2 - token generate is fall
@@ -43,5 +43,19 @@ public class AuthResponse {
         this.errorCode = errorCode;
     }
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
