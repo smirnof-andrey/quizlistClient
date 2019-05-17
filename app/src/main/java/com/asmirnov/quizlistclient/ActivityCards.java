@@ -11,22 +11,34 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.CardListAdapter;
+import com.asmirnov.quizlistclient.service.MyHttpService;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ActivityCards extends AppCompatActivity {
 
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
 
-    private ArrayList<Module> modulesList;
+    private ArrayList<Card> cardsList;
     private CardListAdapter adapter;
+
+    private Module currentModule;
+    private MyHttpService myHttpService;
 
     private ListView listViewCards;
 
     private TextView moduleName;
+    private TextView textInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +46,8 @@ public class ActivityCards extends AppCompatActivity {
         setContentView(R.layout.activity_cards);
 
         moduleName = (TextView) findViewById(R.id.moduleName);
+        textInfo = (TextView) findViewById(R.id.textInfo2);
+
         listViewCards = (ListView) findViewById(R.id.listCards);
 
         // intent
@@ -41,10 +55,29 @@ public class ActivityCards extends AppCompatActivity {
         String mName = intent.getStringExtra("currentModuleName");
         moduleName.setText(mName);
 
+        String currentModuleId = intent.getStringExtra("currentModuleId");
+        currentModule = new Module(Integer.parseInt(currentModuleId),mName,"test");
+
+//        Gson gson = new Gson();
+//
+//        try{
+//            currentModule = gson.fromJson(intent.getStringExtra("currentModule"), Module.class);
+//        }catch (Exception e){
+//            // some report
+//        }
+
+//        try{
+//            myHttpService = gson.fromJson(intent.getStringExtra("myHttpService"), MyHttpService.class);
+//        }catch (Exception e){
+//            // some report
+//        }
+
+        //myHttpService = 1;
+
         // module list
-        modulesList = new ArrayList<>();
-        modulesList.add(new Module("no cards","no cards info"));
-        adapter = new CardListAdapter(this, modulesList);
+        cardsList = new ArrayList<>();
+        cardsList.add(new Card(currentModule,"no cards","no cards info"));
+        adapter = new CardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
         refreshMyListByTestValues();
@@ -54,7 +87,7 @@ public class ActivityCards extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View itemClicked, int position,
                                     long id) {
                 try{
-                    //currentModule = modulesList.get((int)id);
+                    //currentCard = modulesList.get((int)id);
                     CharSequence tMessage = "id="+id;
                     Toast.makeText(getApplicationContext(),tMessage,Toast.LENGTH_LONG).show();
                 }catch (Exception e){
@@ -80,10 +113,67 @@ public class ActivityCards extends AppCompatActivity {
     }
 
     private void refreshMyListByTestValues(){
-        modulesList.clear();
+        cardsList.clear();
         for (int i = 0; i < 30;) {
-            modulesList.add(new Module("test card "+ ++i,"!test card info"+i));
+            cardsList.add(new Card(currentModule,"test card "+ ++i,"!test card info"+i));
         }
         adapter.notifyDataSetChanged();
     }
+
+    private void getCardsByModule(){
+
+        Call<List<Card>> call = myHttpService.getServerQuery().getCards(currentModule.getId().toString());
+
+        call.enqueue(new Callback<List<Card>>() {
+            @Override
+            public void onResponse(Call<List<Card>> call, Response<List<Card>> response) {
+                if (response.isSuccessful()) {
+
+                    try {
+                        List<Card> cards = response.body();
+
+                        cardsList.clear();
+                        cardsList.addAll((ArrayList<Card>) cards);
+
+                        adapter.notifyDataSetChanged();
+
+                        textInfo.setText("Congrats, Success!");
+                    }catch (Exception e){
+
+                    }
+
+//                            String json = response.body().toString();
+//                            Gson gson = new GsonBuilder().create();
+//
+//                            Type type = new TypeToken<List<Module>>(){}.getType();
+//                            List<Module> modules = gson.fromJson(json, type);
+//
+//                            ///
+//
+//                            Gson gson = new Gson();
+//                            String data = gson.toJson(response.body)
+//                            ToolsItem toolsItem = gson.fromJson(data,ToolsItem.class);
+//                            toolItem.mConstructor(response.body());
+
+                }else{
+                    int rawCode = response.raw().code();
+                    switch (rawCode){
+                        case 500:{
+                            // we have to refresh token
+                            break;
+                        }
+                    }
+                    textInfo.setText("not success, server response code:"+rawCode);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Card>> call, Throwable t) {
+                t.printStackTrace();
+                textInfo.setText(t.getMessage());
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 }

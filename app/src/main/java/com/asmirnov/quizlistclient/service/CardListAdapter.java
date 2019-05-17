@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.asmirnov.quizlistclient.R;
+import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 
 import java.util.ArrayList;
@@ -16,23 +17,23 @@ public class CardListAdapter extends BaseAdapter {
 
     Context context;
     LayoutInflater lInflater;
-    ArrayList<Module> modulesList;
+    ArrayList<Card> cardsList;
 
-    public CardListAdapter(Context context, ArrayList<Module> modulesList) {
+    public CardListAdapter(Context context, ArrayList<Card> cardsList) {
         this.context = context;
-        this.modulesList = modulesList;
+        this.cardsList = cardsList;
         lInflater = (LayoutInflater) this.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return modulesList.size();
+        return cardsList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return modulesList.get(position);
+        return cardsList.get(position);
     }
 
     @Override
@@ -48,15 +49,15 @@ public class CardListAdapter extends BaseAdapter {
             view = lInflater.inflate(R.layout.cards_list_item, parent, false);
         }
 
-        Module module = getModule(position);
+        Card card = getCard(position);
 
-        ((TextView) view.findViewById(R.id.textview_name)).setText(module.getName());
-        ((TextView) view.findViewById(R.id.textview_info)).setText(module.getInfo());
+        ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());
+        ((TextView) view.findViewById(R.id.textview_info)).setText(card.getValue());
 
         return view;
     }
 
-    Module getModule(int position) {
-        return ((Module) getItem(position));
+    Card getCard(int position) {
+        return ((Card) getItem(position));
     }
 }

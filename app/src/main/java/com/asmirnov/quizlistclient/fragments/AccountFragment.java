@@ -19,7 +19,6 @@ import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.User;
-import com.asmirnov.quizlistclient.service.ServerQuery;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.google.gson.Gson;
 
@@ -31,8 +30,6 @@ import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -163,14 +160,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
         refreshMyHttpService();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(myHttpService.getURL())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        ServerQuery serverQuery = retrofit.create(ServerQuery.class);
-
-        Call<AuthResponse> callToken = serverQuery.getUserToken(username.getText().toString(),password.getText().toString());
+        Call<AuthResponse> callToken = myHttpService.getServerQueryWithoutToken()
+                .getUserToken(username.getText().toString(),password.getText().toString());
 
         callToken.enqueue(new Callback<AuthResponse>() {
             @Override
@@ -180,6 +171,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                     AuthResponse authResponse = response.body();
                     if(authResponse == null){
                         // do smth
+                    }else if(authResponse.getErrorCode() == 1){
+                        //user is not found
                     }
                     String newToken = authResponse.getToken();
                     User newUser = authResponse.getUser();

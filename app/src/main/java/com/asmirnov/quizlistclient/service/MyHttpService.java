@@ -1,15 +1,13 @@
 package com.asmirnov.quizlistclient.service;
 
-import android.content.SharedPreferences;
-
 import java.io.IOException;
 import java.util.Date;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-
-import static android.content.Context.MODE_PRIVATE;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyHttpService {
     private String URL;
@@ -96,4 +94,29 @@ public class MyHttpService {
             }
         });
     }
+
+    public ServerQuery getServerQuery(){
+
+        OkHttpClient client = getHttpClient().build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
+        return retrofit.create(ServerQuery.class);
+    }
+
+    public ServerQuery getServerQueryWithoutToken(){
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(ServerQuery.class);
+    }
+
+
 }

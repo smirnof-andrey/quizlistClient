@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity{
         // block for check token
 
         myHttpService = new MyHttpService(textURL,textToken);
+//        myHttpService =  MyHttpService.getInstance();
+//        myHttpService.setURL(textURL);
+//        myHttpService.update(textToken,null,false);
     }
 
     @Override

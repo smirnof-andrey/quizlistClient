@@ -1,7 +1,7 @@
 package com.asmirnov.quizlistclient.fragments;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -20,10 +19,13 @@ import android.widget.Toast;
 import com.asmirnov.quizlistclient.ActivityCards;
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
+import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.ModuleListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.asmirnov.quizlistclient.service.ServerQuery;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class MainFragment extends Fragment implements View.OnClickListener{
 
     private MyHttpService myHttpService;
@@ -42,6 +46,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private ArrayList<Module> modulesList;
     private ModuleListAdapter adapter;
+    private List<Module> modules;
 
     private ListView listViewModules;
 
@@ -56,6 +61,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     private Button buttonDeleteModule;
     private Button buttonCreateModule;
     private Button buttonUpdateModule;
+    private Button createCard;
 
 
     @Nullable
@@ -74,6 +80,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         buttonDeleteModule = (Button) v.findViewById(R.id.buttonDeleteModule);
         buttonCreateModule = (Button) v.findViewById(R.id.buttonCreateModule);
         buttonUpdateModule = (Button) v.findViewById(R.id.buttonUpdateModule);
+        createCard = (Button) v.findViewById(R.id.createCard);
 
         listViewModules = (ListView) v.findViewById(R.id.listView);
 
@@ -82,6 +89,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         buttonDeleteModule.setOnClickListener(this);
         buttonCreateModule.setOnClickListener(this);
         buttonUpdateModule.setOnClickListener(this);
+        createCard.setOnClickListener(this);
 
         // module list
         modulesList = new ArrayList<>();
@@ -100,6 +108,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 }
                 Intent intent = new Intent(getActivity(), ActivityCards.class);
                 intent.putExtra("currentModuleName", currentModule.getId().toString()+". "+currentModule.getName());
+//                Gson gson = new GsonBuilder().create();
+                intent.putExtra("currentModuleId", currentModule.getId().toString()); //gson.toJson(currentModule));
+//                intent.putExtra("myHttpService", gson.toJson(myHttpService));
+
+
+
                 startActivity(intent);
             }
         });
@@ -137,6 +151,9 @@ public class MainFragment extends Fragment implements View.OnClickListener{
             case R.id.buttonDeleteModule:
                 deleteModule();
                 break;
+            case R.id.createCard:
+                createCard();
+                break;
             default:
                 break;
         }
@@ -153,6 +170,9 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private void getUserModules() {
 
+        //refreshMyHttpService();
+//        myHttpService = MyHttpService.getInstance();
+
         refreshMyHttpService();
 
         OkHttpClient client = myHttpService.getHttpClient().build();
@@ -165,11 +185,6 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
         ServerQuery serverQuery = retrofit.create(ServerQuery.class);
 
-//                Map<String,String> mapJson = new HashMap<>();
-//                mapJson.put("key",KEY);
-//                mapJson.put("text",text.getText().toString());
-//                mapJson.put("lang","en-ru");
-
         Call<List<Module>> call = serverQuery.getModules();
 
         call.enqueue(new Callback<List<Module>>() {
@@ -177,7 +192,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
             public void onResponse(Call<List<Module>> call, Response<List<Module>> response) {
                 if (response.isSuccessful()) {
 
-                    List<Module> modules = response.body();
+                    modules = response.body();
 
                     modulesList.clear();
                     modulesList.addAll((ArrayList<Module>) modules);
@@ -220,53 +235,75 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         });
     }
 
+    private void createCard() {
+        refreshMyHttpService();
+
+        Module choosenModule=null;
+        Integer currId = Integer.parseInt(textId.getText().toString());
+        for (Module module : modules) {
+            if(module.getId() == currId){
+                choosenModule = module;
+            }
+        }
+        if(choosenModule == null){
+            return;
+        }
+
+        Call<Card> call = myHttpService.getServerQuery().createCard(textId.getText().toString(),
+                new Card(choosenModule,"term_1","value_1"));
+
+        call.enqueue(new Callback<Card>() {
+            @Override
+            public void onResponse(Call<Card> call, Response<Card> response) {
+                if (response.isSuccessful()) {
+
+                    Card card = response.body();
+
+                    textInfo.setText("Congrats, Success!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Card> call, Throwable t) {
+                t.printStackTrace();
+                textInfo.setText(t.getMessage());
+                Toast.makeText(getActivity().getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void getModuleById() {
         refreshMyHttpService();
 
-        OkHttpClient client = myHttpService.getHttpClient().build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(myHttpService.getURL())
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        ServerQuery serverQuery = retrofit.create(ServerQuery.class);
-
-        Call<Module> call = serverQuery.getModuleById(textId.getText().toString());
+        Call<Module> call = myHttpService.getServerQuery().getModuleById(textId.getText().toString());
 
         call.enqueue(new Callback<Module>() {
             @Override
             public void onResponse(Call<Module> call, Response<Module> response) {
                 if (response.isSuccessful()) {
 
-                    Module module = response.body();
+                    modules.clear();
+                    try {
+                        modules.add(response.body());
 
-                    String[] moduleNamesList = new String[1];
+                        modulesList.clear();
+                        modulesList.addAll((ArrayList<Module>) modules);
 
-                    //for (int i = 0; i < modules.size(); i++) {
-                    moduleNamesList[0] = "["+module.getId()+"], "+module.getName();
-                    //}
+                        adapter.notifyDataSetChanged();
 
-                    listViewModules.setAdapter(
-                            new ArrayAdapter<String>(
-                                    getActivity().getApplicationContext(),
-                                    android.R.layout.simple_list_item_1,
-                                    moduleNamesList
-                            ) {
-                                @Override
-                                public View getView(int position, View convertView, ViewGroup parent) {
-                                    View view = super.getView(position, convertView, parent);
-
-                                    TextView textView = (TextView) view.findViewById(android.R.id.text1);
-
-                                    textView.setTextColor(Color.BLUE);
-
-                                    return view;
-                                }
-                            }
-                    );
-                    textInfo.setText("Congrats, Success!");
+                        textInfo.setText("Congrats, Success!");
+                    }catch(Exception e){
+                        textInfo.setText("Exception in getting module");
+                    }
+                }else{
+                    int rawCode = response.raw().code();
+                    switch (rawCode){
+                        case 500:{
+                            // we have to refresh token
+                            break;
+                        }
+                    }
+                    textInfo.setText("not success, server response code:"+rawCode);
                 }
             }
 
@@ -281,20 +318,11 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private void createModule() {
         refreshMyHttpService();
-        OkHttpClient client = myHttpService.getHttpClient().build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(myHttpService.getURL())
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        ServerQuery serverQuery = retrofit.create(ServerQuery.class);
 
         currentModule = new Module(moduleName.getText().toString(),
                 moduleInfo.getText().toString());
 
-        Call<Module> call = serverQuery.createModule(currentModule);
+        Call<Module> call = myHttpService.getServerQuery().createModule(currentModule);
 
         call.enqueue(new Callback<Module>() {
             @Override
@@ -322,17 +350,8 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private void updateModule() {
         refreshMyHttpService();
-        OkHttpClient client = myHttpService.getHttpClient().build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(myHttpService.getURL())
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        ServerQuery serverQuery = retrofit.create(ServerQuery.class);
-
-        Call<Module> call = serverQuery.updateModule(textId.getText().toString(),
+        Call<Module> call = myHttpService.getServerQuery().updateModule(textId.getText().toString(),
                 new Module(moduleName.getText().toString(),
                         moduleInfo.getText().toString()));
 
@@ -355,17 +374,8 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private void deleteModule() {
         refreshMyHttpService();
-        OkHttpClient client = myHttpService.getHttpClient().build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(myHttpService.getURL())
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        ServerQuery serverQuery = retrofit.create(ServerQuery.class);
-
-        Call<Integer> call = serverQuery.deleteModule(textId.getText().toString());
+        Call<Integer> call = myHttpService.getServerQuery().deleteModule(textId.getText().toString());
 
         call.enqueue(new Callback<Integer>() {
             @Override
