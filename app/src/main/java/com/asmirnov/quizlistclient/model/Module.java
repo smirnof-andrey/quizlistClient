@@ -1,6 +1,9 @@
 package com.asmirnov.quizlistclient.model;
 
-public class Module {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Module implements Parcelable {
     private Integer id;
 
     private String name;
@@ -59,4 +62,42 @@ public class Module {
     public String toString() {
         return this.name+", "+this.info+", "+this.id;
     }
+
+    protected Module(Parcel in) {
+        id = in.readByte() == 0x00 ? null : in.readInt();
+        name = in.readString();
+        info = in.readString();
+        author = (User) in.readValue(User.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (id == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(id);
+        }
+        dest.writeString(name);
+        dest.writeString(info);
+        dest.writeValue(author);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Module> CREATOR = new Parcelable.Creator<Module>() {
+        @Override
+        public Module createFromParcel(Parcel in) {
+            return new Module(in);
+        }
+
+        @Override
+        public Module[] newArray(int size) {
+            return new Module[size];
+        }
+    };
 }

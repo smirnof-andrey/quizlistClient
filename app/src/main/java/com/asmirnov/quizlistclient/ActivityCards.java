@@ -3,6 +3,7 @@ package com.asmirnov.quizlistclient;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +29,7 @@ public class ActivityCards extends AppCompatActivity {
 
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
+    private static final String LOG_TAG = "quizlistLogs";
 
     private ArrayList<Card> cardsList;
     private CardListAdapter adapter;
@@ -58,21 +60,21 @@ public class ActivityCards extends AppCompatActivity {
         String currentModuleId = intent.getStringExtra("currentModuleId");
         currentModule = new Module(Integer.parseInt(currentModuleId),mName,"test");
 
-//        Gson gson = new Gson();
-//
-//        try{
-//            currentModule = gson.fromJson(intent.getStringExtra("currentModule"), Module.class);
-//        }catch (Exception e){
-//            // some report
-//        }
+        try{
+            Log.d(LOG_TAG,"start getting currentModule from extra");
+            currentModule = intent.getParcelableExtra("currentModule");
+            Log.d(LOG_TAG,"success in getting currentModule from extra");
+        }catch (Exception e){
+            Log.d(LOG_TAG,"fall in getting currentModule from extra");
+        }
 
-//        try{
-//            myHttpService = gson.fromJson(intent.getStringExtra("myHttpService"), MyHttpService.class);
-//        }catch (Exception e){
-//            // some report
-//        }
-
-        //myHttpService = 1;
+        try{
+            Log.d(LOG_TAG,"start getting myHttpService from extra");
+            myHttpService = intent.getParcelableExtra("myHttpService");
+            Log.d(LOG_TAG,"success in getting myHttpService from extra");
+        }catch (Exception e){
+            Log.d(LOG_TAG,"fall in getting myHttpService from extra");
+        }
 
         // module list
         cardsList = new ArrayList<>();
@@ -80,7 +82,9 @@ public class ActivityCards extends AppCompatActivity {
         adapter = new CardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
-        refreshMyListByTestValues();
+//        refreshMyListByTestValues();
+
+        getCardsByModule();
 
         listViewCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -93,7 +97,6 @@ public class ActivityCards extends AppCompatActivity {
                 }catch (Exception e){
 
                 }
-                //startActivity(new Intent(this, ActivityCards.class));
             }
         });
     }

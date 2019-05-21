@@ -1,5 +1,8 @@
 package com.asmirnov.quizlistclient.service;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -9,13 +12,11 @@ import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MyHttpService {
+public class MyHttpService implements Parcelable {
     private String URL;
     private String token;
-    private boolean isActual;
     private Date lastCheckDate;
-
-    private OkHttpClient.Builder httpClient;
+    private boolean isActual;
 
     public MyHttpService() {
     }
@@ -23,6 +24,11 @@ public class MyHttpService {
     public MyHttpService(String URL,String token){
         this.setURL(URL);
         this.update(token,null,false);
+    }
+
+    public MyHttpService(String URL,String token, Date lastCheckDate){
+        this.setURL(URL);
+        this.update(token,lastCheckDate,false);
     }
 
     public boolean checkUserToken(){
@@ -41,7 +47,6 @@ public class MyHttpService {
 
     public void setToken(String token) {
         this.token = token;
-        refrashHttpClient();
     }
 
     public Boolean getActual() {
@@ -69,17 +74,9 @@ public class MyHttpService {
     }
 
     public OkHttpClient.Builder getHttpClient() {
-        return httpClient;
-    }
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
-    public void setHttpClient(OkHttpClient.Builder httpClient) {
-        this.httpClient = httpClient;
-    }
-
-    private void refrashHttpClient() {
-        httpClient = new OkHttpClient.Builder();
-
-        this.httpClient.addInterceptor(new Interceptor() {
+        httpClient.addInterceptor(new Interceptor() {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request original = chain.request();
@@ -93,6 +90,12 @@ public class MyHttpService {
                 return chain.proceed(request);
             }
         });
+
+        return httpClient;
+    }
+
+    public void loadSavedData(){
+
     }
 
     public ServerQuery getServerQuery(){
@@ -118,5 +121,37 @@ public class MyHttpService {
         return retrofit.create(ServerQuery.class);
     }
 
+    protected MyHttpService(Parcel in) {
+        URL = in.readString();
+        token = in.readString();
+        long tmpLastCheckDate = in.readLong();
+        lastCheckDate = tmpLastCheckDate != -1 ? new Date(tmpLastCheckDate) : null;
+        isActual = in.readByte() != 0x00;
+    }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(URL);
+        dest.writeString(token);
+        dest.writeLong(lastCheckDate != null ? lastCheckDate.getTime() : -1L);
+        dest.writeByte((byte) (isActual ? 0x01 : 0x00));
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MyHttpService> CREATOR = new Parcelable.Creator<MyHttpService>() {
+        @Override
+        public MyHttpService createFromParcel(Parcel in) {
+            return new MyHttpService(in);
+        }
+
+        @Override
+        public MyHttpService[] newArray(int size) {
+            return new MyHttpService[size];
+        }
+    };
 }

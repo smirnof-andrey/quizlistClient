@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +36,11 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AccountFragment extends Fragment implements View.OnClickListener{
 
+    private final String LOG_TAG = "quizlistLogs";
     private final String SAVED_URL = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
     private final String CURRENT_USER = "current_user";
+    private final String LAST_CHECK_DATE = "last_Check_Date";
 
     private User currentUser;
 
@@ -92,6 +95,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         loadURL();
         loadUser();
         loadToken();
+        loadLastCheckDate();
 
         return v;
     }
@@ -117,6 +121,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         savePreferences(SAVED_URL, new_URL);
         myHttpService.setURL(new_URL);
     }
+
     private void loadURL() {
         httpURL.setText(getPreferences(SAVED_URL));
     }
@@ -130,17 +135,38 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         }catch(Exception e){
             // no logged user
             Toast.makeText(getActivity(), "no logged user", Toast.LENGTH_LONG).show();
+            Log.d(LOG_TAG, "no logged user");
         }
     }
 
-    private void refreshUserShowing() {
-        tvCurrentUser.setText("you logged as: "+currentUser.toString());
-        username.setText(currentUser.getUsername());
-        password.setText("");
+    private void loadToken() {
+        String token = getPreferences(SAVED_TOKEN);
+        if(token==null || token.isEmpty()){
+            tokenView.setText("no saved token");
+            Log.d(LOG_TAG, "no saved token");
+        }else{
+            myHttpService.setToken(token);
+            tokenView.setText("token:"+token);
+            Log.d(LOG_TAG, "saved token: "+token);
+        }
     }
 
-    private void loadToken() {
-        tokenView.setText("token:"+getPreferences(SAVED_TOKEN));
+    private void loadLastCheckDate() {
+        Date lastCheckDate;
+        Gson gson = new Gson();
+        String json = getPreferences(LAST_CHECK_DATE);
+        try {
+            lastCheckDate = gson.fromJson(json, Date.class);
+            if(lastCheckDate==null){
+                Log.d(LOG_TAG, "no saved last Check Date.");
+            }else {
+                Log.d(LOG_TAG, "last Check Date = " + lastCheckDate);
+                myHttpService.setLastCheckDate(lastCheckDate);
+            }
+        }catch(Exception e){
+            Toast.makeText(getActivity(), "fall in getting last Check Dat", Toast.LENGTH_LONG).show();
+            Log.d(LOG_TAG, "fall in getting last Check Dat.");
+        }
     }
 
     private void savePreferences(String attribute, String value) {
@@ -154,6 +180,13 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         sPref = this.getActivity().getPreferences(MODE_PRIVATE);
         String savedText = sPref.getString(attribute, "");
         return savedText;
+    }
+
+    private void refreshUserShowing() {
+        tvCurrentUser.setText("you logged as: "+currentUser.toString());
+        username.setText(currentUser.getUsername());
+        password.setText("");
+        Log.d(LOG_TAG, "you logged as: "+currentUser.toString());
     }
 
     private void getToken() {
@@ -170,14 +203,16 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
                     AuthResponse authResponse = response.body();
                     if(authResponse == null){
-                        // do smth
+                        Log.d(LOG_TAG,"fall in getting token: nullable response body");
+                        return;
                     }else if(authResponse.getErrorCode() == 1){
-                        //user is not found
+                        Log.d(LOG_TAG,"fall in getting token: user is not found (error code = 1)");
+                        return;
                     }
                     String newToken = authResponse.getToken();
                     User newUser = authResponse.getUser();
                     if(newToken == null || newToken.isEmpty()){
-                        // do smth
+                        Log.d(LOG_TAG,"fall in getting token: empty token body");
                     }else{
                         setCurrentUser(newUser);
                         setTokenInHttpHeader(newToken);
@@ -191,6 +226,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                 t.printStackTrace();
                 tokenView.setText(t.getMessage());
                 //Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d(LOG_TAG,"fall in getting token:"+t.getMessage());
             }
         });
     }
@@ -202,28 +238,35 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         Gson gson = new Gson();
         String json = gson.toJson(currentUser);
         savePreferences(CURRENT_USER,json);
+
+        Log.d(LOG_TAG,"set current user: "+newUser.getUsername());
     }
 
     private void setTokenInHttpHeader(String newToken) {
         myHttpService.update(newToken, new Date(), true);
         tokenView.setText("token:"+myHttpService.getToken());
+        Log.d(LOG_TAG,"new token:"+myHttpService.getToken());
 
-        myHttpService.getHttpClient().addInterceptor(new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(Chain chain) throws IOException {
-                Request original = chain.request();
-
-                Request request = original.newBuilder()
-                        .header("Content-Type", "application/json")
-                        .header("X-Auth-Token", myHttpService.getToken())
-                        .method(original.method(), original.body())
-                        .build();
-
-                return chain.proceed(request);
-            }
-        });
+//        myHttpService.getHttpClient().addInterceptor(new Interceptor() {
+//            @Override
+//            public okhttp3.Response intercept(Chain chain) throws IOException {
+//                Request original = chain.request();
+//
+//                Request request = original.newBuilder()
+//                        .header("Content-Type", "application/json")
+//                        .header("X-Auth-Token", myHttpService.getToken())
+//                        .method(original.method(), original.body())
+//                        .build();
+//
+//                return chain.proceed(request);
+//            }
+//        });
 
         savePreferences(SAVED_TOKEN,myHttpService.getToken());
+
+        Gson gson = new Gson();
+        String json = gson.toJson(myHttpService.getLastCheckDate());
+        savePreferences(LAST_CHECK_DATE,json);
     }
 
 }

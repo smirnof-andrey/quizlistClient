@@ -42,7 +42,7 @@ public interface ServerQuery {
     @POST("/cards/{id}")
     Call<Card> createCard(@Path("id") String id, @Body Card card);
 
-    @GET("/cards")  // @GET("/module/{id}/cards")
+    @GET("/cards/{id}")  // @GET("/module/{id}/cards")
     Call<List<Card>> getCards(@Path("id") String id);
 
     //@FormUrlEncoded

@@ -14,11 +14,15 @@ import com.asmirnov.quizlistclient.fragments.AccountFragment;
 import com.asmirnov.quizlistclient.fragments.MainFragment;
 import com.asmirnov.quizlistclient.fragments.SearchFragment;
 import com.asmirnov.quizlistclient.service.MyHttpService;
+import com.google.gson.Gson;
+
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity{
 
     private final String SAVED_TEXT = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
+    private final String LAST_CHECK_DATE = "last_Check_Date";
 
     private MyHttpService myHttpService;
 
@@ -70,12 +74,14 @@ public class MainActivity extends AppCompatActivity{
         SharedPreferences sPref;
         sPref = getPreferences(MODE_PRIVATE);
         String textURL = sPref.getString(SAVED_TEXT, "");
-
         String textToken = sPref.getString(SAVED_TOKEN, "");
+        String textLastCheckDate = sPref.getString(LAST_CHECK_DATE, "");
+        Gson gson = new Gson();
+        Date lastCheckDate = gson.fromJson(textLastCheckDate, Date.class);
 
         // block for check token
 
-        myHttpService = new MyHttpService(textURL,textToken);
+        myHttpService = new MyHttpService(textURL,textToken,lastCheckDate);
 //        myHttpService =  MyHttpService.getInstance();
 //        myHttpService.setURL(textURL);
 //        myHttpService.update(textToken,null,false);

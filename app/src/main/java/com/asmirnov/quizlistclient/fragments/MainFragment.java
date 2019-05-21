@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static android.content.Context.MODE_PRIVATE;
 
 public class MainFragment extends Fragment implements View.OnClickListener{
+
+    private static final String LOG_TAG = "quizlistLogs";
 
     private MyHttpService myHttpService;
     private Module currentModule;
@@ -93,7 +96,8 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
         // module list
         modulesList = new ArrayList<>();
-        modulesList.add(new Module("no modules","no modules info"));
+        currentModule = new Module(12,"no modules","no modules info");
+        modulesList.add(currentModule);
         adapter = new ModuleListAdapter(getActivity(), modulesList);
         listViewModules.setAdapter(adapter);
 
@@ -106,13 +110,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 }catch (Exception e){
 
                 }
+
                 Intent intent = new Intent(getActivity(), ActivityCards.class);
                 intent.putExtra("currentModuleName", currentModule.getId().toString()+". "+currentModule.getName());
-//                Gson gson = new GsonBuilder().create();
-                intent.putExtra("currentModuleId", currentModule.getId().toString()); //gson.toJson(currentModule));
-//                intent.putExtra("myHttpService", gson.toJson(myHttpService));
-
-
+                intent.putExtra("currentModuleId", currentModule.getId().toString());
+                intent.putExtra("currentModule", currentModule);
+                intent.putExtra("myHttpService", myHttpService);
 
                 startActivity(intent);
             }
@@ -218,11 +221,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                     int rawCode = response.raw().code();
                     switch (rawCode){
                         case 500:{
-                            // we have to refresh token
+                            Log.d(LOG_TAG, "not valid token. need to refresh it!");
                             break;
                         }
                     }
                     textInfo.setText("not success, server response code:"+rawCode);
+                    Log.d(LOG_TAG, "getting user modules from srv. error. server response code:"+rawCode);
                 }
             }
 
@@ -231,6 +235,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 t.printStackTrace();
                 textInfo.setText(t.getMessage());
                 Toast.makeText(getActivity().getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d(LOG_TAG,"getting user modules from srv. error:"+t.getMessage());
             }
         });
     }
