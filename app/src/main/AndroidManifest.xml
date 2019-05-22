@@ -13,7 +13,10 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ActivityCards"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_cards"></activity>
+        <activity
+            android:name=".EditActivity"
+            android:label="@string/title_edit_activity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

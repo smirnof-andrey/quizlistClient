@@ -12,6 +12,11 @@
         android:title="@string/title_search" />
 
     <item
+        android:id="@+id/navigation_edit"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:title="@string/title_edit" />
+
+    <item
         android:id="@+id/navigation_account"
         android:icon="@drawable/ic_account_box_black_24dp"
         android:title="@string/title_account" />

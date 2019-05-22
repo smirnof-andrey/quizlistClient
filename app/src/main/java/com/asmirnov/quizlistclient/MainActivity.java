@@ -1,5 +1,6 @@
 package com.asmirnov.quizlistclient;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.fragments.AccountFragment;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity{
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
             Fragment currentFragment = null;
+            boolean startActivity = false;
             switch(menuItem.getItemId()){
                 case R.id.navigation_home:
                     currentFragment = new MainFragment();
@@ -42,17 +45,32 @@ public class MainActivity extends AppCompatActivity{
                 case R.id.navigation_search:
                     currentFragment = new SearchFragment();
                     break;
+                case R.id.navigation_edit:
+                    startActivity = true;
+                    break;
                 case R.id.navigation_account:
                     currentFragment = new AccountFragment();
                     break;
             }
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container,currentFragment)
-                    .commit();
+            if(currentFragment==null && startActivity){
+                // !change selected menu item to previous one
+                startEditActivity();
+            }else {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, currentFragment)
+                        .commit();
+            }
             return true;
         }
     };
+
+    private void startEditActivity() {
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra("editMode", false);
+        intent.putExtra("myHttpService", myHttpService);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,4 +121,7 @@ public class MainActivity extends AppCompatActivity{
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

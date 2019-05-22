@@ -164,8 +164,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                 myHttpService.setLastCheckDate(lastCheckDate);
             }
         }catch(Exception e){
-            Toast.makeText(getActivity(), "fall in getting last Check Dat", Toast.LENGTH_LONG).show();
-            Log.d(LOG_TAG, "fall in getting last Check Dat.");
+            Toast.makeText(getActivity(), "fall in getting last Check Date", Toast.LENGTH_LONG).show();
+            Log.d(LOG_TAG, "fall in getting last Check Date.");
         }
     }
 

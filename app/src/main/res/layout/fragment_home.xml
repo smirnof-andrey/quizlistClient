@@ -17,14 +17,19 @@
             <RelativeLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@color/colorListBackground">
 
                 <ListView
                     android:id="@+id/listView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"></ListView>
+                    android:layout_alignParentBottom="true"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="20dp"
+                    android:paddingBottom="10dp"></ListView>
             </RelativeLayout>
         </LinearLayout>
 

@@ -121,6 +121,8 @@ public class MyHttpService implements Parcelable {
         return retrofit.create(ServerQuery.class);
     }
 
+    // Parcelable methods
+
     protected MyHttpService(Parcel in) {
         URL = in.readString();
         token = in.readString();

@@ -2,6 +2,7 @@ package com.asmirnov.quizlistclient;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -51,18 +52,20 @@ public class ActivityCards extends AppCompatActivity {
         textInfo = (TextView) findViewById(R.id.textInfo2);
 
         listViewCards = (ListView) findViewById(R.id.listCards);
+        listViewCards.addHeaderView(createHeader("Cards"));
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
 
         // intent
         Intent intent = getIntent();
-        String mName = intent.getStringExtra("currentModuleName");
-        moduleName.setText(mName);
-
-        String currentModuleId = intent.getStringExtra("currentModuleId");
-        currentModule = new Module(Integer.parseInt(currentModuleId),mName,"test");
 
         try{
             Log.d(LOG_TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
+            setTitle(currentModule.getName());
+            moduleName.setText(currentModule.getName());
             Log.d(LOG_TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(LOG_TAG,"fall in getting currentModule from extra");
@@ -76,13 +79,13 @@ public class ActivityCards extends AppCompatActivity {
             Log.d(LOG_TAG,"fall in getting myHttpService from extra");
         }
 
-        // module list
+        // card list
         cardsList = new ArrayList<>();
         cardsList.add(new Card(currentModule,"no cards","no cards info"));
         adapter = new CardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
-//        refreshMyListByTestValues();
+        refreshMyListByTestValues();
 
         getCardsByModule();
 
@@ -101,16 +104,29 @@ public class ActivityCards extends AppCompatActivity {
         });
     }
 
+    View createHeader(String text) {
+        View view = getLayoutInflater().inflate(R.layout.list_header, null);
+        ((TextView)view.findViewById(R.id.header_text)).setText(text);
+        return view;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add("Edit");
         menu.add("Delete");
-
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getTitle().toString()){
+            case "Edit":
+                startEditActivity();
+                break;
+            case "Delete":
+                //deleteModule();
+                break;
+        }
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
     }
@@ -162,7 +178,7 @@ public class ActivityCards extends AppCompatActivity {
                     int rawCode = response.raw().code();
                     switch (rawCode){
                         case 500:{
-                            // we have to refresh token
+                            Log.d(LOG_TAG, "not valid token. need to refresh it!");
                             break;
                         }
                     }
@@ -179,4 +195,11 @@ public class ActivityCards extends AppCompatActivity {
         });
     }
 
+    private void startEditActivity() {
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra("editMode", true);
+        intent.putExtra("currentModule", currentModule);
+        intent.putExtra("myHttpService", myHttpService);
+        startActivity(intent);
+    }
 }

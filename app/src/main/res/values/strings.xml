@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Quizlist</string>
-    <string name="title_activity_login">Cards</string>
+    <string name="title_activity_cards">Cards</string>
+    <string name="title_edit_activity">Edit</string>
     <string name="title_home">Modules</string>
     <string name="title_search">Search</string>
     <string name="title_account">Account</string>

@@ -86,6 +86,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         createCard = (Button) v.findViewById(R.id.createCard);
 
         listViewModules = (ListView) v.findViewById(R.id.listView);
+        listViewModules.addHeaderView(createHeader("Modules"));
 
         buttonGetModules.setOnClickListener(this);
         buttonGetModuleById.setOnClickListener(this);
@@ -110,13 +111,9 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 }catch (Exception e){
 
                 }
-
                 Intent intent = new Intent(getActivity(), ActivityCards.class);
-                intent.putExtra("currentModuleName", currentModule.getId().toString()+". "+currentModule.getName());
-                intent.putExtra("currentModuleId", currentModule.getId().toString());
                 intent.putExtra("currentModule", currentModule);
                 intent.putExtra("myHttpService", myHttpService);
-
                 startActivity(intent);
             }
         });
@@ -169,6 +166,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
 
         adapter.notifyDataSetChanged();
+    }
+
+    View createHeader(String text) {
+        View view = getLayoutInflater().inflate(R.layout.list_header, null);
+        ((TextView)view.findViewById(R.id.header_text)).setText(text);
+        return view;
     }
 
     private void getUserModules() {
