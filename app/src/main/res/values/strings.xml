@@ -4,6 +4,7 @@
     <string name="title_home">Modules</string>
     <string name="title_search">Search</string>
     <string name="title_account">Account</string>
+    <string name="title_edit">Edit</string>
     <string name="get_token">Login / Get token</string>
     <string name="saveURL">save URL</string>
     <string name="loadURL">load URL</string>
