@@ -26,6 +26,8 @@
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
+                    android:divider="@color/colorListBackground"
+                    android:dividerHeight="15dp"
                     android:paddingLeft="20dp"
                     android:paddingTop="10dp"
                     android:paddingRight="20dp"

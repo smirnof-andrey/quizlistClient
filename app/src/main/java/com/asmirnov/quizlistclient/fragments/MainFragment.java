@@ -121,10 +121,15 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         return v;
     }
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         getUserModules();
     }
 
@@ -258,24 +263,21 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
 
         Call<Card> call = myHttpService.getServerQuery().createCard(textId.getText().toString(),
-                new Card(choosenModule,"term_1","value_1"));
+                new Card(choosenModule,moduleName.getText().toString(),moduleInfo.getText().toString()));
 
         call.enqueue(new Callback<Card>() {
             @Override
             public void onResponse(Call<Card> call, Response<Card> response) {
                 if (response.isSuccessful()) {
-
                     Card card = response.body();
-
-                    textInfo.setText("Congrats, Success!");
+                    Log.d(LOG_TAG,"create new card:"+card.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<Card> call, Throwable t) {
                 t.printStackTrace();
-                textInfo.setText(t.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d(LOG_TAG,"create new card. error:"+t.getMessage());
             }
         });
     }

@@ -65,7 +65,7 @@ public class ActivityCards extends AppCompatActivity {
             Log.d(LOG_TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
             setTitle(currentModule.getName());
-            moduleName.setText(currentModule.getName());
+            moduleName.setText(""+currentModule.getId()+". "+currentModule.getName());
             Log.d(LOG_TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(LOG_TAG,"fall in getting currentModule from extra");
@@ -85,7 +85,7 @@ public class ActivityCards extends AppCompatActivity {
         adapter = new CardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
-        refreshMyListByTestValues();
+//        refreshMyListByTestValues();
 
         getCardsByModule();
 
@@ -112,19 +112,18 @@ public class ActivityCards extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add("Edit");
-        menu.add("Delete");
+        getMenuInflater().inflate(R.menu.card_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getTitle().toString()){
-            case "Edit":
+        switch(item.getItemId()){
+            case R.id.menu_edit:
                 startEditActivity();
                 break;
-            case "Delete":
-                //deleteModule();
+            case R.id.menu_delete:
+                deleteModule();
                 break;
         }
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
@@ -138,6 +137,15 @@ public class ActivityCards extends AppCompatActivity {
         }
         adapter.notifyDataSetChanged();
     }
+
+    private void startEditActivity() {
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra("editMode", true);
+        intent.putExtra("currentModule", currentModule);
+        intent.putExtra("myHttpService", myHttpService);
+        startActivity(intent);
+    }
+
 
     private void getCardsByModule(){
 
@@ -195,11 +203,32 @@ public class ActivityCards extends AppCompatActivity {
         });
     }
 
-    private void startEditActivity() {
-        Intent intent = new Intent(this, EditActivity.class);
-        intent.putExtra("editMode", true);
-        intent.putExtra("currentModule", currentModule);
-        intent.putExtra("myHttpService", myHttpService);
-        startActivity(intent);
+    private void deleteModule() {
+
+        if(currentModule == null || currentModule.getId() == 0){
+            Log.d(LOG_TAG, "delete module. error:no current module or empty id");
+        }else {
+            Call<Integer> call = myHttpService.getServerQuery().deleteModule(currentModule.getId().toString());
+
+            call.enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    //if (response.isSuccessful()) {
+                    textInfo.setText("Delete successful:" + response.code());
+                    Log.d(LOG_TAG, "delete module: success");
+
+                    finish();
+                    //}
+                }
+
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    t.printStackTrace();
+                    textInfo.setText(t.getMessage());
+                    Log.d(LOG_TAG, "delete module. error:"+t.getMessage());
+                    finish();
+                }
+            });
+        }
     }
 }

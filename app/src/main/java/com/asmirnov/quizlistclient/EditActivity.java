@@ -96,7 +96,11 @@ public class EditActivity extends AppCompatActivity {
 
         // card list
         cardsList = new ArrayList<>();
-        cardsList.add(new Card(currentModule,"no cards","no cards info"));
+        if(editMode){
+            cardsList.add(new Card(currentModule,"module's card","module's card info"));
+        }else{
+            cardsList.add(new Card(currentModule,"",""));
+        }
         adapter = new CardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
