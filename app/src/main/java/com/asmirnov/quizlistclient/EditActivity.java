@@ -3,6 +3,7 @@ package com.asmirnov.quizlistclient;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -65,11 +66,15 @@ public class EditActivity extends AppCompatActivity {
 
         listViewCards.addHeaderView(createHeader("Cards"));
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+
         // intent
         Intent intent = getIntent();
 
         editMode = intent.getBooleanExtra("editMode",false);
-        setTitle((editMode ? "Edit" : "Add module"));
+        setTitle((editMode ? "Edit" : "Add new module"));
 
         try{
             Log.d(LOG_TAG,"start getting currentModule from extra");
@@ -133,10 +138,15 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.menu_ok){
-            // add or update module and cards
-            Toast.makeText(this, "add or update module and cards", Toast.LENGTH_SHORT).show();
+        switch(item.getItemId()){
+            case R.id.menu_ok:
+                // add or update module and cards
+                Toast.makeText(this, "add or update module and cards", Toast.LENGTH_SHORT).show();
+            case android.R.id.home:
+                finish();
+                return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

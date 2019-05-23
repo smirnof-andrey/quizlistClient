@@ -118,6 +118,7 @@ public class ActivityCards extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch(item.getItemId()){
             case R.id.menu_edit:
                 startEditActivity();
@@ -125,6 +126,9 @@ public class ActivityCards extends AppCompatActivity {
             case R.id.menu_delete:
                 deleteModule();
                 break;
+            case android.R.id.home:
+                finish();
+                return true;
         }
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
@@ -231,4 +235,5 @@ public class ActivityCards extends AppCompatActivity {
             });
         }
     }
+
 }

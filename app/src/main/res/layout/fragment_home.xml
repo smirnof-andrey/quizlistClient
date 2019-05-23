@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Module name" />
+                android:text="name1" />
 
             <EditText
                 android:id="@+id/editModuleInfo"
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Module info" />
+                android:text="info1" />
 
             <EditText
                 android:id="@+id/editText"
