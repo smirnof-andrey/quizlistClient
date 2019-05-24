@@ -150,7 +150,6 @@ public class ActivityCards extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     private void getCardsByModule(){
 
         Call<List<Card>> call = myHttpService.getServerQuery().getCards(currentModule.getId().toString());
