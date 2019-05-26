@@ -1,6 +1,9 @@
 package com.asmirnov.quizlistclient.service;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +17,16 @@ import com.asmirnov.quizlistclient.model.Card;
 
 import java.util.ArrayList;
 
-public class CardListAdapter extends BaseAdapter {
+public class MyCardListAdapter extends BaseAdapter {
+
+    private static final String TAG = "quizlistLogs";
 
     Context context;
     LayoutInflater lInflater;
     ArrayList<Card> cardsList;
     boolean editMode;
 
-    public CardListAdapter(Context context, ArrayList<Card> cardsList) {
+    public MyCardListAdapter(Context context, ArrayList<Card> cardsList) {
         this.context = context;
         this.cardsList = cardsList;
         editMode = context.getClass()==EditActivity.class;
@@ -45,7 +50,7 @@ public class CardListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
         View view = convertView;
         if (view == null) {
@@ -55,8 +60,22 @@ public class CardListAdapter extends BaseAdapter {
         Card card = getCard(position);
 
         if(editMode){
-            ((EditText) view.findViewById(R.id.textview_name)).setText(card.getTerm());
-            ((EditText) view.findViewById(R.id.textview_info)).setText(card.getValue());
+            EditText textViewTerm = (EditText) view.findViewById(R.id.textview_name);
+            EditText textViewValue = (EditText) view.findViewById(R.id.textview_info);
+            textViewTerm.setText(card.getTerm());
+            textViewValue.setText(card.getValue());
+
+            MyTextWatcher oldWatcher = (MyTextWatcher)textViewTerm.getTag();
+            if(oldWatcher != null){
+                textViewTerm.removeTextChangedListener(oldWatcher);
+                Log.d(TAG, "getView: destroy old Watcher for card ["+card.getId()+"], position:"+position);
+            }
+
+            MyTextWatcher newWatcher = new MyTextWatcher(card);
+            textViewTerm.setTag(newWatcher);
+            textViewTerm.addTextChangedListener(newWatcher);
+            Log.d(TAG, "getView: add new Watcher for card ["+card.getId()+"], position:"+position);
+
         }else {
             ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());
             ((TextView) view.findViewById(R.id.textview_info)).setText(card.getValue());
@@ -68,4 +87,5 @@ public class CardListAdapter extends BaseAdapter {
     Card getCard(int position) {
         return ((Card) getItem(position));
     }
+
 }
