@@ -14,14 +14,14 @@ import com.asmirnov.quizlistclient.model.Card;
 
 import java.util.ArrayList;
 
-public class CardListAdapter extends BaseAdapter {
+public class MyCardListAdapter extends BaseAdapter {
 
     Context context;
     LayoutInflater lInflater;
     ArrayList<Card> cardsList;
     boolean editMode;
 
-    public CardListAdapter(Context context, ArrayList<Card> cardsList) {
+    public MyCardListAdapter(Context context, ArrayList<Card> cardsList) {
         this.context = context;
         this.cardsList = cardsList;
         editMode = context.getClass()==EditActivity.class;

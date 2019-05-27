@@ -1,7 +1,6 @@
 package com.asmirnov.quizlistclient.fragments;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,8 +24,6 @@ import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.ModuleListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.asmirnov.quizlistclient.service.ServerQuery;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +35,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class MainFragment extends Fragment implements View.OnClickListener{
 
-    private static final String LOG_TAG = "quizlistLogs";
+    private static final String TAG = "quizlistLogs";
 
     private MyHttpService myHttpService;
     private Module currentModule;
@@ -229,12 +224,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                     int rawCode = response.raw().code();
                     switch (rawCode){
                         case 500:{
-                            Log.d(LOG_TAG, "not valid token. need to refresh it!");
+                            Log.d(TAG, "not valid token. need to refresh it!");
                             break;
                         }
                     }
                     textInfo.setText("not success, server response code:"+rawCode);
-                    Log.d(LOG_TAG, "getting user modules from srv. error. server response code:"+rawCode);
+                    Log.d(TAG, "getting user modules from srv. error. server response code:"+rawCode);
                 }
             }
 
@@ -243,7 +238,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 t.printStackTrace();
                 textInfo.setText(t.getMessage());
                 Toast.makeText(getActivity().getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-                Log.d(LOG_TAG,"getting user modules from srv. error:"+t.getMessage());
+                Log.d(TAG,"getting user modules from srv. error:"+t.getMessage());
             }
         });
     }
@@ -270,14 +265,14 @@ public class MainFragment extends Fragment implements View.OnClickListener{
             public void onResponse(Call<Card> call, Response<Card> response) {
                 if (response.isSuccessful()) {
                     Card card = response.body();
-                    Log.d(LOG_TAG,"create new card:"+card.toString());
+                    Log.d(TAG,"create new card:"+card.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<Card> call, Throwable t) {
                 t.printStackTrace();
-                Log.d(LOG_TAG,"create new card. error:"+t.getMessage());
+                Log.d(TAG,"create new card. error:"+t.getMessage());
             }
         });
     }

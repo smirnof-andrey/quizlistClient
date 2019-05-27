@@ -23,11 +23,8 @@ import com.asmirnov.quizlistclient.model.User;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.Date;
 
-import okhttp3.Interceptor;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,7 +33,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AccountFragment extends Fragment implements View.OnClickListener{
 
-    private final String LOG_TAG = "quizlistLogs";
+    private final String TAG = "quizlistLogs";
     private final String SAVED_URL = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
     private final String CURRENT_USER = "current_user";
@@ -135,7 +132,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         }catch(Exception e){
             // no logged user
             Toast.makeText(getActivity(), "no logged user", Toast.LENGTH_LONG).show();
-            Log.d(LOG_TAG, "no logged user");
+            Log.d(TAG, "no logged user");
         }
     }
 
@@ -143,11 +140,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         String token = getPreferences(SAVED_TOKEN);
         if(token==null || token.isEmpty()){
             tokenView.setText("no saved token");
-            Log.d(LOG_TAG, "no saved token");
+            Log.d(TAG, "no saved token");
         }else{
             myHttpService.setToken(token);
             tokenView.setText("token:"+token);
-            Log.d(LOG_TAG, "saved token: "+token);
+            Log.d(TAG, "saved token: "+token);
         }
     }
 
@@ -158,14 +155,14 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         try {
             lastCheckDate = gson.fromJson(json, Date.class);
             if(lastCheckDate==null){
-                Log.d(LOG_TAG, "no saved last Check Date.");
+                Log.d(TAG, "no saved last Check Date.");
             }else {
-                Log.d(LOG_TAG, "last Check Date = " + lastCheckDate);
+                Log.d(TAG, "last Check Date = " + lastCheckDate);
                 myHttpService.setLastCheckDate(lastCheckDate);
             }
         }catch(Exception e){
             Toast.makeText(getActivity(), "fall in getting last Check Date", Toast.LENGTH_LONG).show();
-            Log.d(LOG_TAG, "fall in getting last Check Date.");
+            Log.d(TAG, "fall in getting last Check Date.");
         }
     }
 
@@ -186,7 +183,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         tvCurrentUser.setText("you logged as: "+currentUser.toString());
         username.setText(currentUser.getUsername());
         password.setText("");
-        Log.d(LOG_TAG, "you logged as: "+currentUser.toString());
+        Log.d(TAG, "you logged as: "+currentUser.toString());
     }
 
     private void getToken() {
@@ -203,16 +200,16 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
                     AuthResponse authResponse = response.body();
                     if(authResponse == null){
-                        Log.d(LOG_TAG,"fall in getting token: nullable response body");
+                        Log.d(TAG,"fall in getting token: nullable response body");
                         return;
                     }else if(authResponse.getErrorCode() == 1){
-                        Log.d(LOG_TAG,"fall in getting token: user is not found (error code = 1)");
+                        Log.d(TAG,"fall in getting token: user is not found (error code = 1)");
                         return;
                     }
                     String newToken = authResponse.getToken();
                     User newUser = authResponse.getUser();
                     if(newToken == null || newToken.isEmpty()){
-                        Log.d(LOG_TAG,"fall in getting token: empty token body");
+                        Log.d(TAG,"fall in getting token: empty token body");
                     }else{
                         setCurrentUser(newUser);
                         setTokenInHttpHeader(newToken);
@@ -226,7 +223,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                 t.printStackTrace();
                 tokenView.setText(t.getMessage());
                 //Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-                Log.d(LOG_TAG,"fall in getting token:"+t.getMessage());
+                Log.d(TAG,"fall in getting token:"+t.getMessage());
             }
         });
     }
@@ -239,13 +236,13 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         String json = gson.toJson(currentUser);
         savePreferences(CURRENT_USER,json);
 
-        Log.d(LOG_TAG,"set current user: "+newUser.getUsername());
+        Log.d(TAG,"set current user: "+newUser.getUsername());
     }
 
     private void setTokenInHttpHeader(String newToken) {
         myHttpService.update(newToken, new Date(), true);
         tokenView.setText("token:"+myHttpService.getToken());
-        Log.d(LOG_TAG,"new token:"+myHttpService.getToken());
+        Log.d(TAG,"new token:"+myHttpService.getToken());
 
 //        myHttpService.getHttpClient().addInterceptor(new Interceptor() {
 //            @Override

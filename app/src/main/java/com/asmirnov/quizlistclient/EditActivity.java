@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
-import com.asmirnov.quizlistclient.service.CardListAdapter;
+import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ import java.util.ArrayList;
 public class EditActivity extends AppCompatActivity {
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
-    private static final String LOG_TAG = "quizlistLogs";
+    private static final String TAG = "quizlistLogs";
 
     private ArrayList<Card> cardsList;
-    private CardListAdapter adapter;
+    private MyCardListAdapter adapter;
 
     private Module currentModule;
     private MyHttpService myHttpService;
@@ -77,11 +77,11 @@ public class EditActivity extends AppCompatActivity {
         setTitle((editMode ? "Edit" : "Add new module"));
 
         try{
-            Log.d(LOG_TAG,"start getting currentModule from extra");
+            Log.d(TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
-            Log.d(LOG_TAG,"success in getting currentModule from extra");
+            Log.d(TAG,"success in getting currentModule from extra");
         }catch (Exception e){
-            Log.d(LOG_TAG,"fall in getting currentModule from extra");
+            Log.d(TAG,"fall in getting currentModule from extra");
         }
 
         if(currentModule==null){
@@ -92,11 +92,11 @@ public class EditActivity extends AppCompatActivity {
         }
 
         try{
-            Log.d(LOG_TAG,"start getting myHttpService from extra");
+            Log.d(TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-            Log.d(LOG_TAG,"success in getting myHttpService from extra");
+            Log.d(TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
-            Log.d(LOG_TAG,"fall in getting myHttpService from extra");
+            Log.d(TAG,"fall in getting myHttpService from extra");
         }
 
         // card list
@@ -106,7 +106,7 @@ public class EditActivity extends AppCompatActivity {
         }else{
             cardsList.add(new Card(currentModule,"",""));
         }
-        adapter = new CardListAdapter(this, cardsList);
+        adapter = new MyCardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
         listViewCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {

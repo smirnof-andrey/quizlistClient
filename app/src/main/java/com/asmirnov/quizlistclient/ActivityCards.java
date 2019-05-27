@@ -15,9 +15,8 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
-import com.asmirnov.quizlistclient.service.CardListAdapter;
+import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ActivityCards extends AppCompatActivity {
     private static final String LOG_TAG = "quizlistLogs";
 
     private ArrayList<Card> cardsList;
-    private CardListAdapter adapter;
+    private MyCardListAdapter adapter;
 
     private Module currentModule;
     private MyHttpService myHttpService;
@@ -82,7 +81,7 @@ public class ActivityCards extends AppCompatActivity {
         // card list
         cardsList = new ArrayList<>();
         cardsList.add(new Card(currentModule,"no cards","no cards info"));
-        adapter = new CardListAdapter(this, cardsList);
+        adapter = new MyCardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
 //        refreshMyListByTestValues();
