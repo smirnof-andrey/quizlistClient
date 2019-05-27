@@ -129,7 +129,7 @@ public class ActivityCards extends AppCompatActivity {
                 finish();
                 return true;
         }
-        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
     }
 

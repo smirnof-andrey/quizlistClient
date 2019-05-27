@@ -1,6 +1,7 @@
 package com.asmirnov.quizlistclient.service;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,13 @@ import java.util.ArrayList;
 
 public class MyCardListAdapter extends BaseAdapter {
 
+    private static final String TAG = "quizlistLogs";
+
     Context context;
     LayoutInflater lInflater;
     ArrayList<Card> cardsList;
     boolean editMode;
+    Card card;
 
     public MyCardListAdapter(Context context, ArrayList<Card> cardsList) {
         this.context = context;
@@ -52,15 +56,32 @@ public class MyCardListAdapter extends BaseAdapter {
             view = lInflater.inflate((editMode ? R.layout.cards_list_item2 : R.layout.cards_list_item), parent, false);
         }
 
-        Card card = getCard(position);
+        card = getCard(position);
 
-//        if(editMode){
-//            ((EditText) view.findViewById(R.id.textview_name)).setText(card.getTerm());
-//            ((EditText) view.findViewById(R.id.textview_info)).setText(card.getValue());
-//        }else {
+        if(editMode){
+            EditText textview_name = (EditText) view.findViewById(R.id.textview_name);
+            textview_name.setText(card.getTerm());
+            ((EditText) view.findViewById(R.id.textview_info)).setText(card.getValue());
+            textview_name.setTag(card.getId());
+            Log.d(TAG, "getView: view:"+textview_name.getId()+",set tag "+card.getId());
+
+            textview_name.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+//                    if (!hasFocus){
+//                        //cardsList.get(position) = Caption.getText().toString();
+//                    }
+                    final int position = v.getId();
+                    final EditText Caption = (EditText) v;
+//                    Log.d(TAG, "onFocusChange: "+(hasFocus ? "+" : "-")+", view:"+position+". card:"+card.getId()+", term:"+card.getTerm()+". New str:"+Caption.getText());
+                }
+            });
+
+        }else {
             ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());
             ((TextView) view.findViewById(R.id.textview_info)).setText(card.getValue());
-//        }
+        }
+
+
 
         return view;
     }
@@ -68,4 +89,6 @@ public class MyCardListAdapter extends BaseAdapter {
     Card getCard(int position) {
         return ((Card) getItem(position));
     }
+
+
 }

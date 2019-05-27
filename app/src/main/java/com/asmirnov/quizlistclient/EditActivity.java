@@ -123,12 +123,35 @@ public class EditActivity extends AppCompatActivity {
                 try{
                     //currentCard = modulesList.get((int)id);
                     CharSequence tMessage = "id="+id;
-                    Toast.makeText(getApplicationContext(),tMessage,Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "onItemClick: "+tMessage);
+
+
                 }catch (Exception e){
 
                 }
             }
+
         });
+
+        listViewCards.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemSelected: ");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "onNothingSelected: ");
+            }
+        });
+
+        listViewCards.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.d(TAG, "onFocusChange: ");
+            }
+        });
+
     }
 
     private ArrayList<Card> getListOfTwoEmptyCards(Module currentModule) {
