@@ -62,7 +62,8 @@ public class Card implements Parcelable {
     @Override
     public String toString() {
         return "Card{" +
-                "module=" + module +
+                "id=" + id +
+                ", module=" + module +
                 ", term='" + term + '\'' +
                 ", value='" + value + '\'' +
                 '}';

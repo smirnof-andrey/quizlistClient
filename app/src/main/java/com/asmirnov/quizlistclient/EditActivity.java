@@ -102,9 +102,16 @@ public class EditActivity extends AppCompatActivity {
         // card list
         cardsList = new ArrayList<>();
         if(editMode){
-            cardsList.add(new Card(currentModule,"module's card","module's card info"));
+            try{
+                Log.d(TAG,"start getting cardsList from extra");
+                cardsList = intent.getParcelableArrayListExtra("cardsList");
+                Log.d(TAG,"success in getting cardsList from extra");
+            }catch (Exception e){
+                cardsList = getListOfTwoEmptyCards(currentModule);
+                Log.d(TAG,"fall in getting cardsList from extra");
+            }
         }else{
-            cardsList.add(new Card(currentModule,"",""));
+            cardsList = getListOfTwoEmptyCards(currentModule);
         }
         adapter = new MyCardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
@@ -122,6 +129,13 @@ public class EditActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private ArrayList<Card> getListOfTwoEmptyCards(Module currentModule) {
+        ArrayList<Card> cardsList = new ArrayList<>();
+        cardsList.add(new Card(currentModule,"",""));
+        cardsList.add(new Card(currentModule,"",""));
+        return cardsList;
     }
 
     View createHeader(String text) {

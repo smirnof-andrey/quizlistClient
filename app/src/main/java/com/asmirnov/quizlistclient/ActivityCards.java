@@ -145,6 +145,7 @@ public class ActivityCards extends AppCompatActivity {
         Intent intent = new Intent(this, EditActivity.class);
         intent.putExtra("editMode", true);
         intent.putExtra("currentModule", currentModule);
+        intent.putExtra("cardsList", cardsList);
         intent.putExtra("myHttpService", myHttpService);
         startActivity(intent);
     }

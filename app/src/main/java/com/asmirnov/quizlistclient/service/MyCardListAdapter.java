@@ -49,18 +49,18 @@ public class MyCardListAdapter extends BaseAdapter {
 
         View view = convertView;
         if (view == null) {
-            view = lInflater.inflate((editMode ? R.layout.cards_list_item_edit : R.layout.cards_list_item), parent, false);
+            view = lInflater.inflate((editMode ? R.layout.cards_list_item2 : R.layout.cards_list_item), parent, false);
         }
 
         Card card = getCard(position);
 
-        if(editMode){
-            ((EditText) view.findViewById(R.id.textview_name)).setText(card.getTerm());
-            ((EditText) view.findViewById(R.id.textview_info)).setText(card.getValue());
-        }else {
+//        if(editMode){
+//            ((EditText) view.findViewById(R.id.textview_name)).setText(card.getTerm());
+//            ((EditText) view.findViewById(R.id.textview_info)).setText(card.getValue());
+//        }else {
             ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());
             ((TextView) view.findViewById(R.id.textview_info)).setText(card.getValue());
-        }
+//        }
 
         return view;
     }
