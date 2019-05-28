@@ -12,11 +12,15 @@ public class MyTextWatcher implements TextWatcher {
     private Card card;
     private Integer count1;
     private Integer count2;
+    private MyAdapterInterface mMyInterface;
+    int position;
 
-    public MyTextWatcher(Card card) {
+    public MyTextWatcher(Card card, MyAdapterInterface mMyInterface, int position) {
         this.card = card;
         this.count1 = 0;
         this.count2 = 0;
+        this.position = position;
+        this.mMyInterface = mMyInterface;
 //        Log.d(TAG, "######## "+card.getId()+" ###### init MyTextWatcher"+count2);
     }
 
@@ -37,6 +41,6 @@ public class MyTextWatcher implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
         count2++;
-//        Log.d(TAG, "!!!!!!afterTextChanged: ["+ card.getId()+ "]. c2="+ count2);
+        Log.d(TAG, "!!!!!!afterTextChanged: ["+ card.getId()+ "]. c2="+ count2);
     }
 }

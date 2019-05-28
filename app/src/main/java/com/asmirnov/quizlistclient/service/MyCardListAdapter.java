@@ -21,10 +21,18 @@ public class MyCardListAdapter extends BaseAdapter {
 
     private static final String TAG = "quizlistLogs";
 
+    MyAdapterInterface mMyInterface;
+
     Context context;
     LayoutInflater lInflater;
     ArrayList<Card> cardsList;
     boolean editMode;
+
+    public MyCardListAdapter(Context context, ArrayList<Card> cardsList, MyAdapterInterface mMyInterface) {
+        this(context,cardsList);
+        this.mMyInterface = mMyInterface;
+
+    }
 
     public MyCardListAdapter(Context context, ArrayList<Card> cardsList) {
         this.context = context;
@@ -50,7 +58,7 @@ public class MyCardListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
 
         View view = convertView;
         if (view == null) {
@@ -65,16 +73,19 @@ public class MyCardListAdapter extends BaseAdapter {
             textViewTerm.setText(card.getTerm());
             textViewValue.setText(card.getValue());
 
-            MyTextWatcher oldWatcher = (MyTextWatcher)textViewTerm.getTag();
-            if(oldWatcher != null){
-                textViewTerm.removeTextChangedListener(oldWatcher);
-                Log.d(TAG, "getView: destroy old Watcher for card ["+card.getId()+"], position:"+position);
-            }
+            textViewTerm.setOnFocusChangeListener(new MyFCListner(position,mMyInterface));
+//            textViewTerm.addTextChangedListener(new MyTextWatcher2(position,mMyInterface));
 
-            MyTextWatcher newWatcher = new MyTextWatcher(card);
-            textViewTerm.setTag(newWatcher);
-            textViewTerm.addTextChangedListener(newWatcher);
-            Log.d(TAG, "getView: add new Watcher for card ["+card.getId()+"], position:"+position);
+//            MyTextWatcher2 oldWatcher = (MyTextWatcher2)textViewTerm.getTag();
+//            if(oldWatcher != null){
+//                textViewTerm.removeTextChangedListener(oldWatcher);
+////                Log.d(TAG, "getView: destroy old Watcher for card ["+card.getId()+"], position:"+position);
+//            }
+//
+//            MyTextWatcher2 newWatcher = new MyTextWatcher2(position,mMyInterface);
+//            textViewTerm.setTag(newWatcher);
+//            textViewTerm.addTextChangedListener(newWatcher);
+////            Log.d(TAG, "getView: add new Watcher for card ["+card.getId()+"], position:"+position);
 
         }else {
             ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());
@@ -86,6 +97,69 @@ public class MyCardListAdapter extends BaseAdapter {
 
     Card getCard(int position) {
         return ((Card) getItem(position));
+    }
+
+    private class imageViewClickListene implements View.OnClickListener {
+        int position;
+
+        public imageViewClickListene(int position) {
+            this.position = position;
+        }
+
+        public void onClick(View v) {
+            // here we  remove the selected item
+            //cardsList.remove(rowItem);
+            String text = ((EditText)v).getText().toString();
+            Log.d(TAG, "  imageViewClickListene onClick: position"+position+", text:"+text);
+            mMyInterface.updateEditText(position,text);
+            // here we refresh the adapter
+            MyCardListAdapter.this.notifyDataSetChanged();
+        }
+    }
+
+    private class MyFCListner implements View.OnFocusChangeListener{
+        int position;
+        MyAdapterInterface mMyInterface;
+
+
+        public MyFCListner(int position, MyAdapterInterface mMyInterface) {
+            this.position = position;
+            this.mMyInterface = mMyInterface;
+        }
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            String text = ((EditText)v).getText().toString();
+            Log.d(TAG, "onFocusChange: position:"+position+", text:"+text);
+            mMyInterface.updateEditText(position,text);
+        }
+    }
+
+    private class MyTextWatcher2 implements TextWatcher{
+
+        int position;
+        MyAdapterInterface mMyInterface;
+
+        public MyTextWatcher2(int position, MyAdapterInterface mMyInterface) {
+            this.position = position;
+            this.mMyInterface = mMyInterface;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            Log.d(TAG, "afterTextChanged: position:"+position+", text:"+s);
+            mMyInterface.updateEditText(position,s.toString());
+        }
     }
 
 }

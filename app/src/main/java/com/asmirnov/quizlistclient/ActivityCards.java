@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.service.MyAdapterInterface;
 import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
@@ -25,7 +26,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ActivityCards extends AppCompatActivity {
+public class ActivityCards extends AppCompatActivity{
 
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
@@ -61,19 +62,19 @@ public class ActivityCards extends AppCompatActivity {
         Intent intent = getIntent();
 
         try{
-            Log.d(LOG_TAG,"start getting currentModule from extra");
+//            Log.d(LOG_TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
             setTitle(currentModule.getName());
             moduleName.setText(""+currentModule.getId()+". "+currentModule.getName());
-            Log.d(LOG_TAG,"success in getting currentModule from extra");
+//            Log.d(LOG_TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(LOG_TAG,"fall in getting currentModule from extra");
         }
 
         try{
-            Log.d(LOG_TAG,"start getting myHttpService from extra");
+//            Log.d(LOG_TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-            Log.d(LOG_TAG,"success in getting myHttpService from extra");
+//            Log.d(LOG_TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
             Log.d(LOG_TAG,"fall in getting myHttpService from extra");
         }
@@ -84,7 +85,7 @@ public class ActivityCards extends AppCompatActivity {
         adapter = new MyCardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
-//        refreshMyListByTestValues();
+        refreshMyListByTestValues();
 
         getCardsByModule();
 

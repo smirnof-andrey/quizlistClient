@@ -17,12 +17,13 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.service.MyAdapterInterface;
 import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements MyAdapterInterface {
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
     private static final String TAG = "quizlistLogs";
@@ -75,9 +76,9 @@ public class EditActivity extends AppCompatActivity {
         setTitle((editMode ? "Edit" : "Add new module"));
 
         try{
-            Log.d(TAG,"start getting currentModule from extra");
+//            Log.d(TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
-            Log.d(TAG,"success in getting currentModule from extra");
+//            Log.d(TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting currentModule from extra");
         }
@@ -90,9 +91,9 @@ public class EditActivity extends AppCompatActivity {
         }
 
         try{
-            Log.d(TAG,"start getting myHttpService from extra");
+//            Log.d(TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-            Log.d(TAG,"success in getting myHttpService from extra");
+//            Log.d(TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting myHttpService from extra");
         }
@@ -100,9 +101,9 @@ public class EditActivity extends AppCompatActivity {
         // card list
         if(editMode){
             try{
-                Log.d(TAG,"start getting cardsList from extra");
+//                Log.d(TAG,"start getting cardsList from extra");
                 cardsList = intent.getParcelableArrayListExtra("cardsList");
-                Log.d(TAG,"success in getting cardsList from extra");
+//                Log.d(TAG,"success in getting cardsList from extra");
             }catch (Exception e){
                 cardsList = getListOfTwoEmptyCards(currentModule);
                 Log.d(TAG,"fall in getting cardsList from extra");
@@ -111,7 +112,7 @@ public class EditActivity extends AppCompatActivity {
             cardsList = getListOfTwoEmptyCards(currentModule);
         }
 
-        adapter = new MyCardListAdapter(this, cardsList);
+        adapter = new MyCardListAdapter(this, cardsList,this);
         listViewCards.setAdapter(adapter);
 
         listViewCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -175,6 +176,12 @@ public class EditActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
+    @Override
+    public void updateEditText(int position, String text) {
+        Card currentCard = cardsList.get(position);
+        if(!currentCard.getTerm().equals(text)){
+            cardsList.get(position).setTerm(text);
+            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
+        }
+    }
 }
