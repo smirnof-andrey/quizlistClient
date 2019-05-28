@@ -28,6 +28,8 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     private static final String MODULE_INFO = "info";
     private static final String TAG = "quizlistLogs";
 
+    private boolean editMode;
+
     private ArrayList<Card> cardsList;
     private MyCardListAdapter adapter;
 
@@ -40,8 +42,6 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     private ListView listViewCards;
 
     private FloatingActionButton fab;
-
-    private boolean editMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,32 +115,7 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         adapter = new MyCardListAdapter(this, cardsList,this);
         listViewCards.setAdapter(adapter);
 
-        listViewCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View itemClicked, int position,
-                                    long id) {
-                Log.d(TAG,"card is been clicked");
-                try{
-                    //currentCard = modulesList.get((int)id);
-                    CharSequence tMessage = "id="+id;
-                    Toast.makeText(getApplicationContext(),tMessage,Toast.LENGTH_LONG).show();
-                }catch (Exception e){
-
-                }
-            }
-        });
         listViewCards.addHeaderView(createHeader("Cards"));
-        listViewCards.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemSelected: id:"+id+", position:"+position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
     private ArrayList<Card> getListOfTwoEmptyCards(Module currentModule) {
@@ -177,11 +152,11 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     }
 
     @Override
-    public void updateEditText(int position, String text) {
+    public void updateCardList(int position, String text) {
         Card currentCard = cardsList.get(position);
         if(!currentCard.getTerm().equals(text)){
             cardsList.get(position).setTerm(text);
-            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
+//            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
         }
     }
 }
