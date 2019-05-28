@@ -16,7 +16,9 @@
             android:label="@string/title_activity_cards"></activity>
         <activity
             android:name=".EditActivity"
-            android:label="@string/title_edit_activity"></activity>
+            android:label="@string/title_edit_activity"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -17,15 +17,18 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.service.MyAdapterInterface;
 import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements MyAdapterInterface {
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
     private static final String TAG = "quizlistLogs";
+
+    private boolean editMode;
 
     private ArrayList<Card> cardsList;
     private MyCardListAdapter adapter;
@@ -39,8 +42,6 @@ public class EditActivity extends AppCompatActivity {
     private ListView listViewCards;
 
     private FloatingActionButton fab;
-
-    private boolean editMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +65,6 @@ public class EditActivity extends AppCompatActivity {
 
         moduleName.setText("");
 
-        listViewCards.addHeaderView(createHeader("Cards"));
-
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
@@ -77,9 +76,9 @@ public class EditActivity extends AppCompatActivity {
         setTitle((editMode ? "Edit" : "Add new module"));
 
         try{
-            Log.d(TAG,"start getting currentModule from extra");
+//            Log.d(TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
-            Log.d(TAG,"success in getting currentModule from extra");
+//            Log.d(TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting currentModule from extra");
         }
@@ -92,20 +91,19 @@ public class EditActivity extends AppCompatActivity {
         }
 
         try{
-            Log.d(TAG,"start getting myHttpService from extra");
+//            Log.d(TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-            Log.d(TAG,"success in getting myHttpService from extra");
+//            Log.d(TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting myHttpService from extra");
         }
 
         // card list
-        cardsList = new ArrayList<>();
         if(editMode){
             try{
-                Log.d(TAG,"start getting cardsList from extra");
+//                Log.d(TAG,"start getting cardsList from extra");
                 cardsList = intent.getParcelableArrayListExtra("cardsList");
-                Log.d(TAG,"success in getting cardsList from extra");
+//                Log.d(TAG,"success in getting cardsList from extra");
             }catch (Exception e){
                 cardsList = getListOfTwoEmptyCards(currentModule);
                 Log.d(TAG,"fall in getting cardsList from extra");
@@ -113,45 +111,11 @@ public class EditActivity extends AppCompatActivity {
         }else{
             cardsList = getListOfTwoEmptyCards(currentModule);
         }
-        adapter = new MyCardListAdapter(this, cardsList);
+
+        adapter = new MyCardListAdapter(this, cardsList,this);
         listViewCards.setAdapter(adapter);
 
-        listViewCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View itemClicked, int position,
-                                    long id) {
-                try{
-                    //currentCard = modulesList.get((int)id);
-                    CharSequence tMessage = "id="+id;
-                    Log.d(TAG, "onItemClick: "+tMessage);
-
-
-                }catch (Exception e){
-
-                }
-            }
-
-        });
-
-        listViewCards.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemSelected: ");
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.d(TAG, "onNothingSelected: ");
-            }
-        });
-
-        listViewCards.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.d(TAG, "onFocusChange: ");
-            }
-        });
-
+        listViewCards.addHeaderView(createHeader("Cards"));
     }
 
     private ArrayList<Card> getListOfTwoEmptyCards(Module currentModule) {
@@ -185,5 +149,14 @@ public class EditActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void updateCardList(int position, String text) {
+        Card currentCard = cardsList.get(position);
+        if(!currentCard.getTerm().equals(text)){
+            cardsList.get(position).setTerm(text);
+//            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
+        }
     }
 }
