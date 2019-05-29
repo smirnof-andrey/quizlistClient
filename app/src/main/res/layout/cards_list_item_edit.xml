@@ -23,7 +23,7 @@
             <EditText
                 android:id="@+id/textview_name"
                 android:layout_width="match_parent"
-                android:layout_height="20pt"
+                android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:clickable="false"
                 android:hint="term"
@@ -36,7 +36,7 @@
             <EditText
                 android:id="@+id/textview_info"
                 android:layout_width="match_parent"
-                android:layout_height="20pt"
+                android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:clickable="true"
                 android:hint="value"
@@ -47,12 +47,6 @@
                 android:textSize="20sp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/imageButton3"
-            android:layout_width="wrap_content"
-            android:layout_height="40pt"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_edit_black_24dp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -29,21 +29,27 @@ public interface ServerQuery {
     @GET("/module")
     Call<List<Module>> getModules();
 
+    @GET("/cards/{id}")   //@GET("/module/{id}/cards")  //
+    Call<List<Card>> getCards(@Path("id") String id);
+
+
     //@FormUrlEncoded
     @POST("/module")
     Call<Module> createModule(@Body Module module);
 
+    @POST("/cards/{id}")
+    Call<Card> createCard(@Path("id") String id, @Body Card card);
+
+
     @DELETE("/module/{id}")
     Call<Integer> deleteModule(@Path("id") String id);
+
 
     @PUT("/module/{id}")
     Call<Module> updateModule(@Path("id") String id, @Body Module module);
 
-    @POST("/cards/{id}")
-    Call<Card> createCard(@Path("id") String id, @Body Card card);
+    @PUT("/cards/{id}")
+    Call<Module> updateCards(@Path("id") String id, @Body Module module);
+//    Call<List<Card>> updateCards(@Path("id") String id, @Query("module") Module module, @Query("cardList") List<Card> cardList);
 
-    @GET("/cards/{id}")  // @GET("/module/{id}/cards")
-    Call<List<Card>> getCards(@Path("id") String id);
-
-    //@FormUrlEncoded
 }

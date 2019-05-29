@@ -22,6 +22,11 @@ import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EditActivity extends AppCompatActivity implements MyAdapterInterface {
     private static final String MODULE_NAME = "name";
@@ -144,7 +149,8 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
                 // add or update module and cards
                 Toast.makeText(this, "add or update module and cards", Toast.LENGTH_SHORT).show();
             case android.R.id.home:
-                finish();
+                updateCardListInServer();
+//                finish();
                 return true;
         }
 
@@ -159,4 +165,38 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
 //            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
         }
     }
+
+    private void updateCardListInServer() {
+        boolean needUpdate;
+        // compare card lists
+        updateModuleCards();
+
+    }
+
+    private void updateModuleCards() {
+
+        Call<Module> call = myHttpService.getServerQuery().updateCards(
+                currentModule.getId().toString(),
+                currentModule
+//                ,cardsList
+        );
+
+        call.enqueue(new Callback<Module>() {
+            @Override
+            public void onResponse(Call<Module> call, Response<Module> response) {
+                //if (response.isSuccessful()) {
+                textInfo.setText("response code:"+response.code());
+                //}
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<Module> call, Throwable t) {
+                t.printStackTrace();
+                textInfo.setText(t.getMessage());
+                finish();
+            }
+        });
+    }
+
 }
