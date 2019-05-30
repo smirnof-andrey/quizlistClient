@@ -1,11 +1,14 @@
 package com.asmirnov.quizlistclient.service;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.asmirnov.quizlistclient.EditActivity;
@@ -53,7 +56,7 @@ public class MyCardListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
         View view = convertView;
         if (view == null) {
@@ -65,10 +68,20 @@ public class MyCardListAdapter extends BaseAdapter {
         if(editMode){
             EditText textViewTerm = (EditText) view.findViewById(R.id.textview_name);
             EditText textViewValue = (EditText) view.findViewById(R.id.textview_info);
+            ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteButton);
             textViewTerm.setText(card.getTerm());
             textViewValue.setText(card.getValue());
 
             textViewTerm.setOnFocusChangeListener(new MyOnFocusChangeListener(position, myAdapterInterface));
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick: delete button");
+                    // dialog confirm delete
+                    myAdapterInterface.deleteCard(position);
+                }
+            });
 
         }else {
             ((TextView) view.findViewById(R.id.textview_name)).setText(card.getTerm());

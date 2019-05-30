@@ -136,7 +136,7 @@ public class ActivityCards extends AppCompatActivity{
     private void refreshMyListByTestValues(){
         cardsList.clear();
         for (int i = 0; i < 30;) {
-            cardsList.add(new Card(currentModule,"test card "+ ++i,"!test card info"+i));
+            cardsList.add(new Card(++i,currentModule,"test card "+i,"!test card info"+i));
         }
         adapter.notifyDataSetChanged();
     }

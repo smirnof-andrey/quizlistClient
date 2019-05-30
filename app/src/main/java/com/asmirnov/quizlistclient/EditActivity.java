@@ -22,7 +22,9 @@ import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -175,10 +177,13 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
 
     private void updateModuleCards() {
 
+        Map<String, Object> map = new HashMap();
+        map.put("module", currentModule);
+        map.put("cardsList", cardsList);
+
         Call<Module> call = myHttpService.getServerQuery().updateCards(
                 currentModule.getId().toString(),
-                currentModule
-//                ,cardsList
+                map
         );
 
         call.enqueue(new Callback<Module>() {
@@ -199,4 +204,9 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         });
     }
 
+    @Override
+    public void deleteCard(int position) {
+        cardsList.remove(position);
+        adapter.notifyDataSetChanged();
+    }
 }

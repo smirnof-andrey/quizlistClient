@@ -4,10 +4,14 @@ import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
@@ -49,7 +53,7 @@ public interface ServerQuery {
     Call<Module> updateModule(@Path("id") String id, @Body Module module);
 
     @PUT("/cards/{id}")
-    Call<Module> updateCards(@Path("id") String id, @Body Module module);
+    Call<Module> updateCards(@Path("id") String id, @Body Map<String, Object> map);
 //    Call<List<Card>> updateCards(@Path("id") String id, @Query("module") Module module, @Query("cardList") List<Card> cardList);
 
 }
