@@ -44,6 +44,9 @@ public interface ServerQuery {
     @POST("/cards/{id}")
     Call<Card> createCard(@Path("id") String id, @Body Card card);
 
+    @POST("/cards")
+    Call<String> createCards(@Body Map<String, Object> map);
+
 
     @DELETE("/module/{id}")
     Call<Integer> deleteModule(@Path("id") String id);
@@ -54,6 +57,5 @@ public interface ServerQuery {
 
     @PUT("/cards/{id}")
     Call<String> updateCards(@Path("id") String id, @Body Map<String, Object> map);
-//    Call<List<Card>> updateCards(@Path("id") String id, @Query("module") Module module, @Query("cardList") List<Card> cardList);
 
 }

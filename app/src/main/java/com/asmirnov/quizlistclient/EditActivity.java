@@ -115,10 +115,14 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         editMode = intent.getBooleanExtra("editMode",false);
         setTitle((editMode ? "Edit" : "Add new module"));
 
-        try{
-            currentModule = intent.getParcelableExtra("currentModule");
-        }catch (Exception e){
-            Log.d(TAG,"fall in getting currentModule from extra");
+        if(editMode) {
+            try {
+                currentModule = intent.getParcelableExtra("currentModule");
+            } catch (Exception e) {
+                Log.d(TAG, "fall in getting currentModule from extra");
+            }
+        }else{
+            currentModule = new Module("","");
         }
 
         if(currentModule==null){
@@ -154,8 +158,8 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
 
     private ArrayList<Card> getListOfTwoEmptyCards(Module currentModule) {
         ArrayList<Card> cardsList = new ArrayList<>();
-        cardsList.add(new Card(currentModule,"",""));
-        cardsList.add(new Card(currentModule,"",""));
+        cardsList.add(new Card(0,currentModule,"",""));
+        cardsList.add(new Card(0,currentModule,"",""));
         return cardsList;
     }
 
@@ -215,10 +219,15 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         map.put("module", currentModule);
         map.put("cardsList", cardsList);
 
-        Call<String> call = myHttpService.getServerQuery().updateCards(
-                currentModule.getId().toString(),
-                map
-        );
+        Call<String> call;
+        if(editMode) {
+            call = myHttpService.getServerQuery().updateCards(
+                    currentModule.getId().toString(),
+                    map
+            );
+        }else{
+            call = myHttpService.getServerQuery().createCards(map);
+        }
 
         call.enqueue(new Callback<String>() {
             @Override
@@ -242,9 +251,11 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     }
 
     private void finishWithAnswer() {
-        Intent answer = new Intent();
-        answer.putExtra("currentModule", currentModule);
-        setResult(EDIT_REQUEST_CODE, answer);
+        if(editMode) {
+            Intent answer = new Intent();
+            answer.putExtra("currentModule", currentModule);
+            setResult(EDIT_REQUEST_CODE, answer);
+        }
         finish();
     }
 
