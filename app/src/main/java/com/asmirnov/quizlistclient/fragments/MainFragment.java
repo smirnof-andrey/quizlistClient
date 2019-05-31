@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -116,7 +118,6 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         return v;
     }
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,11 +127,6 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     public void onResume() {
         super.onResume();
         getUserModules();
-    }
-
-    private void refreshMyHttpService() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        myHttpService = mainActivity.getMyHttpService();
     }
 
     @Override
@@ -159,6 +155,11 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    private void refreshMyHttpService() {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        myHttpService = mainActivity.getMyHttpService();
+    }
+
     private void refreshMyListByTestValues(){
         modulesList.clear();
         for (int i = 0; i < 30;) {
@@ -175,9 +176,6 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     }
 
     private void getUserModules() {
-
-        //refreshMyHttpService();
-//        myHttpService = MyHttpService.getInstance();
 
         refreshMyHttpService();
 

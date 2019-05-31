@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity{
     private final String SAVED_TEXT = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
     private final String LAST_CHECK_DATE = "last_Check_Date";
+    Fragment currentFragment;
 
     private MyHttpService myHttpService;
 
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity{
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-            Fragment currentFragment = null;
+            currentFragment = null;
             boolean startActivity = false;
             switch(menuItem.getItemId()){
                 case R.id.navigation_home:
@@ -108,17 +109,23 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add("Add new module");
-        menu.add("Delete module");
-        menu.add("test: get module by id");
-        menu.add("test: update module");
-        menu.add("test: get user modules");
-
+        menu.add("Get user modules");
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        if(item.getTitle().toString().equals("Add new module")){
+            startEditActivity();
+        }else if(item.getTitle().toString().equals("Get user modules")){
+            currentFragment = new MainFragment();
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, currentFragment)
+                    .commit();
+        }
         return super.onOptionsItemSelected(item);
     }
 

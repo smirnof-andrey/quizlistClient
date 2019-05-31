@@ -9,7 +9,7 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:orientation="vertical">
@@ -39,7 +39,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/editModuleName"
