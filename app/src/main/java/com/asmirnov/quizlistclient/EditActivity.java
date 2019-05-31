@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
@@ -23,7 +23,6 @@ import com.asmirnov.quizlistclient.service.MyHttpService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -34,6 +33,7 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
     private static final String TAG = "quizlistLogs";
+    private static final Integer EDIT_REQUEST_CODE = 1;
 
     private boolean editMode;
 
@@ -43,8 +43,8 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     private Module currentModule;
     private MyHttpService myHttpService;
 
-    private EditText moduleName;
-    private EditText textInfo;
+    private EditText viewModuleName;
+    private EditText viewModuleInfo;
 
     private ListView listViewCards;
 
@@ -55,22 +55,55 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_activity);
 
-        moduleName = (EditText) findViewById(R.id.moduleName);
-        textInfo = (EditText) findViewById(R.id.textInfo2);
+        viewModuleName = (EditText) findViewById(R.id.moduleName);
+        viewModuleInfo = (EditText) findViewById(R.id.textInfo2);
+        viewModuleName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!s.toString().isEmpty()) {
+                    Log.d(TAG, "beforeTextChanged: s:" + s);
+                    currentModule.setName(s.toString());
+                }
+            }
+        });
+        viewModuleInfo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!s.toString().isEmpty()) {
+                    Log.d(TAG, "beforeTextChanged: s:" + s);
+                    currentModule.setInfo(s.toString());
+                }
+            }
+        });
 
         listViewCards = (ListView) findViewById(R.id.listCards);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cardsList.add(new Card(currentModule,"",""));
+                cardsList.add(new Card(0,currentModule,"",""));
                 adapter.notifyDataSetChanged();
             }
         });
-
-        moduleName.setText("");
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -83,24 +116,20 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         setTitle((editMode ? "Edit" : "Add new module"));
 
         try{
-//            Log.d(TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
-//            Log.d(TAG,"success in getting currentModule from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting currentModule from extra");
         }
 
         if(currentModule==null){
-            moduleName.setText("");
+            viewModuleName.setText("Error, no module!");
         }else{
-            moduleName.setText(currentModule.getName());
-            textInfo.setText(currentModule.getInfo());
+            viewModuleName.setText(currentModule.getName());
+            viewModuleInfo.setText(currentModule.getInfo());
         }
 
         try{
-//            Log.d(TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-//            Log.d(TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
             Log.d(TAG,"fall in getting myHttpService from extra");
         }
@@ -108,9 +137,7 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         // card list
         if(editMode){
             try{
-//                Log.d(TAG,"start getting cardsList from extra");
                 cardsList = intent.getParcelableArrayListExtra("cardsList");
-//                Log.d(TAG,"success in getting cardsList from extra");
             }catch (Exception e){
                 cardsList = getListOfTwoEmptyCards(currentModule);
                 Log.d(TAG,"fall in getting cardsList from extra");
@@ -149,10 +176,12 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         switch(item.getItemId()){
             case R.id.menu_ok:
                 // add or update module and cards
-                Toast.makeText(this, "add or update module and cards", Toast.LENGTH_SHORT).show();
-            case android.R.id.home:
+//                Toast.makeText(this, "add or update module and cards", Toast.LENGTH_SHORT).show();
                 updateCardListInServer();
-//                finish();
+                break;
+            case android.R.id.home:
+                setResult(RESULT_OK);
+                finish();
                 return true;
         }
 
@@ -160,11 +189,16 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
     }
 
     @Override
-    public void updateCardList(int position, String text) {
+    public void updateCardListTerm(int position, String text, boolean itIsTerm) {
         Card currentCard = cardsList.get(position);
-        if(!currentCard.getTerm().equals(text)){
-            cardsList.get(position).setTerm(text);
-//            Log.d(TAG, "!updateEditText: position:"+position+", text:"+text);
+        if(itIsTerm) {
+            if (!currentCard.getTerm().equals(text)) {
+                cardsList.get(position).setTerm(text);
+            }
+        }else{
+            if (!currentCard.getValue().equals(text)) {
+                cardsList.get(position).setValue(text);
+            }
         }
     }
 
@@ -181,27 +215,37 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
         map.put("module", currentModule);
         map.put("cardsList", cardsList);
 
-        Call<Module> call = myHttpService.getServerQuery().updateCards(
+        Call<String> call = myHttpService.getServerQuery().updateCards(
                 currentModule.getId().toString(),
                 map
         );
 
-        call.enqueue(new Callback<Module>() {
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<Module> call, Response<Module> response) {
-                //if (response.isSuccessful()) {
-                textInfo.setText("response code:"+response.code());
-                //}
-                finish();
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful()) {
+                    String resp = response.body();
+                    if(!resp.isEmpty()){
+                        Log.d(TAG, "Update module cards error. ErrorMessage:" + resp
+                                + ", server code:" + response.code());
+                    }
+                }
+                finishWithAnswer();
             }
 
             @Override
-            public void onFailure(Call<Module> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 t.printStackTrace();
-                textInfo.setText(t.getMessage());
-                finish();
+                finishWithAnswer();
             }
         });
+    }
+
+    private void finishWithAnswer() {
+        Intent answer = new Intent();
+        answer.putExtra("currentModule", currentModule);
+        setResult(EDIT_REQUEST_CODE, answer);
+        finish();
     }
 
     @Override

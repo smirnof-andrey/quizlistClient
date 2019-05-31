@@ -2,6 +2,7 @@ package com.asmirnov.quizlistclient;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,7 +16,6 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
-import com.asmirnov.quizlistclient.service.MyAdapterInterface;
 import com.asmirnov.quizlistclient.service.MyCardListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 
@@ -30,7 +30,8 @@ public class ActivityCards extends AppCompatActivity{
 
     private static final String MODULE_NAME = "name";
     private static final String MODULE_INFO = "info";
-    private static final String LOG_TAG = "quizlistLogs";
+    private static final String TAG = "quizlistLogs";
+    private static final Integer EDIT_REQUEST_CODE = 1;
 
     private ArrayList<Card> cardsList;
     private MyCardListAdapter adapter;
@@ -40,7 +41,7 @@ public class ActivityCards extends AppCompatActivity{
 
     private ListView listViewCards;
 
-    private TextView moduleName;
+    private TextView currentInfo;
     private TextView textInfo;
 
     @Override
@@ -48,7 +49,7 @@ public class ActivityCards extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cards);
 
-        moduleName = (TextView) findViewById(R.id.moduleName);
+        currentInfo = (TextView) findViewById(R.id.moduleName);
         textInfo = (TextView) findViewById(R.id.textInfo2);
 
         listViewCards = (ListView) findViewById(R.id.listCards);
@@ -62,21 +63,17 @@ public class ActivityCards extends AppCompatActivity{
         Intent intent = getIntent();
 
         try{
-//            Log.d(LOG_TAG,"start getting currentModule from extra");
             currentModule = intent.getParcelableExtra("currentModule");
             setTitle(currentModule.getName());
-            moduleName.setText(""+currentModule.getId()+". "+currentModule.getName());
-//            Log.d(LOG_TAG,"success in getting currentModule from extra");
+            textInfo.setText(currentModule.getInfo());
         }catch (Exception e){
-            Log.d(LOG_TAG,"fall in getting currentModule from extra");
+            Log.d(TAG,"fall in getting currentModule from extra");
         }
 
         try{
-//            Log.d(LOG_TAG,"start getting myHttpService from extra");
             myHttpService = intent.getParcelableExtra("myHttpService");
-//            Log.d(LOG_TAG,"success in getting myHttpService from extra");
         }catch (Exception e){
-            Log.d(LOG_TAG,"fall in getting myHttpService from extra");
+            Log.d(TAG,"fall in getting myHttpService from extra");
         }
 
         // card list
@@ -85,7 +82,7 @@ public class ActivityCards extends AppCompatActivity{
         adapter = new MyCardListAdapter(this, cardsList);
         listViewCards.setAdapter(adapter);
 
-        refreshMyListByTestValues();
+//        refreshMyListByTestValues();
 
         getCardsByModule();
 
@@ -95,8 +92,7 @@ public class ActivityCards extends AppCompatActivity{
                                     long id) {
                 try{
                     //currentCard = modulesList.get((int)id);
-                    CharSequence tMessage = "id="+id;
-                    Toast.makeText(getApplicationContext(),tMessage,Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(),"id="+id,Toast.LENGTH_LONG).show();
                 }catch (Exception e){
 
                 }
@@ -124,6 +120,7 @@ public class ActivityCards extends AppCompatActivity{
                 startEditActivity();
                 break;
             case R.id.menu_delete:
+                // dialog!
                 deleteModule();
                 break;
             case android.R.id.home:
@@ -147,7 +144,24 @@ public class ActivityCards extends AppCompatActivity{
         intent.putExtra("currentModule", currentModule);
         intent.putExtra("cardsList", cardsList);
         intent.putExtra("myHttpService", myHttpService);
-        startActivity(intent);
+        startActivityForResult(intent,EDIT_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == EDIT_REQUEST_CODE){
+            try {
+                currentModule = data.getParcelableExtra("currentModule");
+                setTitle(currentModule.getName());
+                currentInfo.setText("");
+                textInfo.setText(currentModule.getInfo());
+                getCardsByModule();
+            } catch (Exception e) {
+                Log.d(TAG, "ActivityCards: fall in getting module from extra");
+            }
+        }
     }
 
     private void getCardsByModule(){
@@ -167,7 +181,7 @@ public class ActivityCards extends AppCompatActivity{
 
                         adapter.notifyDataSetChanged();
 
-                        textInfo.setText("Congrats, Success!");
+                        currentInfo.setText("");
                     }catch (Exception e){
 
                     }
@@ -189,18 +203,18 @@ public class ActivityCards extends AppCompatActivity{
                     int rawCode = response.raw().code();
                     switch (rawCode){
                         case 500:{
-                            Log.d(LOG_TAG, "not valid token. need to refresh it!");
+                            Log.d(TAG, "not valid token. need to refresh it!");
                             break;
                         }
                     }
-                    textInfo.setText("not success, server response code:"+rawCode);
+                    currentInfo.setText("not success, server response code:"+rawCode);
                 }
             }
 
             @Override
             public void onFailure(Call<List<Card>> call, Throwable t) {
                 t.printStackTrace();
-                textInfo.setText(t.getMessage());
+                currentInfo.setText(t.getMessage());
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -209,7 +223,7 @@ public class ActivityCards extends AppCompatActivity{
     private void deleteModule() {
 
         if(currentModule == null || currentModule.getId() == 0){
-            Log.d(LOG_TAG, "delete module. error:no current module or empty id");
+            Log.d(TAG, "delete module. error:no current module or empty id");
         }else {
             Call<Integer> call = myHttpService.getServerQuery().deleteModule(currentModule.getId().toString());
 
@@ -217,18 +231,14 @@ public class ActivityCards extends AppCompatActivity{
                 @Override
                 public void onResponse(Call<Integer> call, Response<Integer> response) {
                     //if (response.isSuccessful()) {
-                    textInfo.setText("Delete successful:" + response.code());
-                    Log.d(LOG_TAG, "delete module: success");
-
+                    Log.d(TAG, "delete module: success");
                     finish();
                     //}
                 }
 
                 @Override
                 public void onFailure(Call<Integer> call, Throwable t) {
-                    t.printStackTrace();
-                    textInfo.setText(t.getMessage());
-                    Log.d(LOG_TAG, "delete module. error:"+t.getMessage());
+                    Log.d(TAG, "delete module. error:"+t.getMessage());
                     finish();
                 }
             });

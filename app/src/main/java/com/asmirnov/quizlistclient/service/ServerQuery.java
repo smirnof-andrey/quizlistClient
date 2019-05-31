@@ -53,7 +53,7 @@ public interface ServerQuery {
     Call<Module> updateModule(@Path("id") String id, @Body Module module);
 
     @PUT("/cards/{id}")
-    Call<Module> updateCards(@Path("id") String id, @Body Map<String, Object> map);
+    Call<String> updateCards(@Path("id") String id, @Body Map<String, Object> map);
 //    Call<List<Card>> updateCards(@Path("id") String id, @Query("module") Module module, @Query("cardList") List<Card> cardList);
 
 }

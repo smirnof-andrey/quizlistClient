@@ -9,16 +9,17 @@ public class MyOnFocusChangeListener implements View.OnFocusChangeListener {
 
     private int position;
     private MyAdapterInterface myAdapterInterface;
+    private boolean itIsTerm;
 
-    public MyOnFocusChangeListener(int position, MyAdapterInterface myAdapterInterface) {
+    public MyOnFocusChangeListener(int position, MyAdapterInterface myAdapterInterface, boolean itIsTerm) {
         this.position = position;
         this.myAdapterInterface = myAdapterInterface;
+        this.itIsTerm = itIsTerm;
     }
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         String text = ((EditText)v).getText().toString();
-//        Log.d(TAG, "onFocusChange: position:"+position+", text:"+text);
-        myAdapterInterface.updateCardList(position,text);
+        myAdapterInterface.updateCardListTerm(position, text, itIsTerm);
     }
 }

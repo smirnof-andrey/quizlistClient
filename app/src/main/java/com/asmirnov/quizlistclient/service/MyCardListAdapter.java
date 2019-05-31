@@ -72,7 +72,8 @@ public class MyCardListAdapter extends BaseAdapter {
             textViewTerm.setText(card.getTerm());
             textViewValue.setText(card.getValue());
 
-            textViewTerm.setOnFocusChangeListener(new MyOnFocusChangeListener(position, myAdapterInterface));
+            textViewTerm.setOnFocusChangeListener(new MyOnFocusChangeListener(position, myAdapterInterface, true));
+            textViewValue.setOnFocusChangeListener(new MyOnFocusChangeListener(position, myAdapterInterface, false));
 
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
