@@ -1,23 +1,25 @@
 package com.asmirnov.quizlistclient.fragments;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
+import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.User;
 import com.asmirnov.quizlistclient.service.MyHttpService;
@@ -39,6 +41,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     private final String CURRENT_USER = "current_user";
     private final String LAST_CHECK_DATE = "last_Check_Date";
 
+    private boolean isEditebleServerAddress = false;
+
     private User currentUser;
 
     private TextView tvCurrentUser;
@@ -49,8 +53,14 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     private EditText httpURL;
 
     private Button buttonGetToken;
+    private Button buttonLogin;
+    private Button buttonLogout;
+    private Button buttonRegistration;
+
+    private ImageButton buttonEditServerAddress;
 
     private MyHttpService myHttpService;
+    private DataAccessProvider dataAccessProvider;
 
     private SharedPreferences sPref;
 
@@ -68,31 +78,24 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         password = (EditText) v.findViewById(R.id.editPassword);
 
         buttonGetToken = (Button) v.findViewById(R.id.buttonGetToken);
+        buttonLogin = (Button) v.findViewById(R.id.buttonLogin);
+        buttonLogout = (Button) v.findViewById(R.id.buttonLogout);
+        buttonRegistration = (Button) v.findViewById(R.id.buttonRegistration);
+        buttonEditServerAddress = (ImageButton) v.findViewById(R.id.buttonEditServerAddress);
 
         buttonGetToken.setOnClickListener(this);
+        buttonLogin.setOnClickListener(this);
+        buttonLogout.setOnClickListener(this);
+        buttonRegistration.setOnClickListener(this);
+        buttonEditServerAddress.setOnClickListener(this);
 
-        httpURL.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                saveURL();
-            }
-        });
+        dataAccessProvider = new DataAccessProvider(getActivity());
 
         refreshMyHttpService();
 
-        loadURL();
-        loadUser();
-        loadToken();
-        loadLastCheckDate();
+        loadAllParams();
+
+        refreshUI();
 
         return v;
     }
@@ -102,15 +105,103 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         myHttpService = mainActivity.getMyHttpService();
     }
 
+    private void loadAllParams() {
+        loadURL();
+        loadUser();
+        loadToken();
+        loadLastCheckDate();
+    }
+
+    private void refreshUI(){
+
+        if(currentUser == null){
+            tvCurrentUser.setText("no current user");
+        }else{
+            tvCurrentUser.setText("you logged as: "+currentUser.getUsername());
+        }
+
+        refreshUIVisibility();
+
+        refreshEditURL();
+    }
+
+    private void refreshUIVisibility() {
+
+        if(currentUser == null){
+            username.setVisibility(View.VISIBLE);
+            password.setVisibility(View.VISIBLE);
+
+            buttonGetToken.setVisibility(View.GONE);
+            buttonLogin.setVisibility(View.VISIBLE);
+            buttonLogout.setVisibility(View.GONE);
+            buttonRegistration.setVisibility(View.VISIBLE);
+
+            tokenView.setVisibility(View.GONE);
+        }else{
+            username.setVisibility(View.GONE);
+            password.setVisibility(View.GONE);
+
+            buttonGetToken.setVisibility(View.VISIBLE);
+            buttonLogin.setVisibility(View.GONE);
+            buttonLogout.setVisibility(View.VISIBLE);
+            buttonRegistration.setVisibility(View.GONE);
+
+            tokenView.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.buttonGetToken:
                 getToken();
                 break;
+            case R.id.buttonLogin:
+                loginUser();
+                break;
+            case R.id.buttonLogout:
+                logoutUser();
+                break;
+            case R.id.buttonEditServerAddress:
+                changeEditable();
+                break;
+            case R.id.buttonRegistration:
+                registrationUser();
+                break;
             default:
                 break;
         }
+    }
+
+    private void registrationUser() {
+
+    }
+
+    private void changeEditable() {
+        isEditebleServerAddress = !isEditebleServerAddress;
+
+        if(!isEditebleServerAddress ){
+            saveURL();
+        }
+        refreshEditURL();
+    }
+
+    private void refreshEditURL(){
+        httpURL.setInputType(isEditebleServerAddress ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL);
+        httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.RED);
+    }
+
+    private void logoutUser() {
+        currentUser = null;
+        refreshUI();
+    }
+
+    private void loginUser() {
+        getTokenFromServer(username.getText().toString(),password.getText().toString());
+    }
+
+    private void getToken() {
+        getTokenFromServer(currentUser.getUsername(),currentUser.getPassword());
     }
 
     private void saveURL() {
@@ -120,20 +211,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     }
 
     private void loadURL() {
-        httpURL.setText(getPreferences(SAVED_URL));
+        httpURL.setText(dataAccessProvider.getCurrentURL());
     }
 
     private void loadUser() {
-        Gson gson = new Gson();
-        String json = getPreferences(CURRENT_USER);
-        try {
-            currentUser = gson.fromJson(json, User.class);
-            refreshUserShowing();
-        }catch(Exception e){
-            // no logged user
-            Toast.makeText(getActivity(), "no logged user", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "no logged user");
-        }
+        currentUser = dataAccessProvider.getCurrentUser();
     }
 
     private void loadToken() {
@@ -179,19 +261,17 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         return savedText;
     }
 
-    private void refreshUserShowing() {
-        tvCurrentUser.setText("you logged as: "+currentUser.toString());
-        username.setText(currentUser.getUsername());
-        password.setText("");
+    private void refreshUserRepresentation() {
+        tvCurrentUser.setText("you logged as: "+currentUser.getUsername());
         Log.d(TAG, "you logged as: "+currentUser.toString());
     }
 
-    private void getToken() {
+    private void getTokenFromServer(String usernameStr, String passwordStr) {
 
         refreshMyHttpService();
 
         Call<AuthResponse> callToken = myHttpService.getServerQueryWithoutToken()
-                .getUserToken(username.getText().toString(),password.getText().toString());
+                .getUserToken(usernameStr,passwordStr);
 
         callToken.enqueue(new Callback<AuthResponse>() {
             @Override
@@ -204,16 +284,17 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                         return;
                     }else if(authResponse.getErrorCode() == 1){
                         Log.d(TAG,"fall in getting token: user is not found (error code = 1)");
+                        tvCurrentUser.setText("user is not found");
                         return;
                     }
                     String newToken = authResponse.getToken();
                     User newUser = authResponse.getUser();
                     if(newToken == null || newToken.isEmpty()){
                         Log.d(TAG,"fall in getting token: empty token body");
+                        tvCurrentUser.setText("empty token body");
                     }else{
                         setCurrentUser(newUser);
                         setTokenInHttpHeader(newToken);
-                        //getUserModules();
                     }
                 }
             }
@@ -222,7 +303,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 t.printStackTrace();
                 tokenView.setText(t.getMessage());
-                //Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.d(TAG,"fall in getting token:"+t.getMessage());
             }
         });
@@ -230,13 +310,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     private void setCurrentUser(User newUser) {
         currentUser = newUser;
-        refreshUserShowing();
-
-        Gson gson = new Gson();
-        String json = gson.toJson(currentUser);
-        savePreferences(CURRENT_USER,json);
-
-        Log.d(TAG,"set current user: "+newUser.getUsername());
+        dataAccessProvider.saveCurrentUser(currentUser);
+        refreshUserRepresentation();
     }
 
     private void setTokenInHttpHeader(String newToken) {

@@ -9,9 +9,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.fragments.AccountFragment;
 import com.asmirnov.quizlistclient.fragments.MainFragment;
 import com.asmirnov.quizlistclient.fragments.SearchFragment;
@@ -25,7 +25,9 @@ public class MainActivity extends AppCompatActivity{
     private final String SAVED_TEXT = "saved_URL";
     private final String SAVED_TOKEN = "saved_token";
     private final String LAST_CHECK_DATE = "last_Check_Date";
-    Fragment currentFragment;
+    private Fragment currentFragment;
+
+    DataAccessProvider dataAccessProvider;
 
     private MyHttpService myHttpService;
 
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dataAccessProvider = new DataAccessProvider(this);
         createMyHttpService();
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
@@ -87,6 +90,15 @@ public class MainActivity extends AppCompatActivity{
                 .beginTransaction()
                 .replace(R.id.fragment_container,new MainFragment())
                 .commit();
+
+        if(!dataAccessProvider.userIsLogged()){
+            currentFragment = new AccountFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, currentFragment)
+                    .commit();
+        }
+
     }
 
     private void createMyHttpService() {
@@ -128,7 +140,5 @@ public class MainActivity extends AppCompatActivity{
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 
 }

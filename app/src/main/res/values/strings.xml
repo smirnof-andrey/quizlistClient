@@ -7,7 +7,7 @@
     <string name="title_account">Account</string>
     <string name="title_edit">Edit</string>
     <string name="title_delete">Delete</string>
-    <string name="get_token">Login / Get token</string>
+    <string name="get_token">Refresh token</string>
     <string name="saveURL">save URL</string>
     <string name="loadURL">load URL</string>
     <string name="defaultURL">http://192.168.0.103:8080</string>
