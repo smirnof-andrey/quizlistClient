@@ -19,13 +19,14 @@ import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
-import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.User;
+import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.google.gson.Gson;
 
 import java.util.Date;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -174,7 +175,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     }
 
     private void registrationUser() {
-
+        addNewUser(username.getText().toString(),password.getText().toString());
     }
 
     private void changeEditable() {
@@ -188,7 +189,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     private void refreshEditURL(){
         httpURL.setInputType(isEditebleServerAddress ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL);
-        httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.RED);
+        httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.WHITE);
     }
 
     private void logoutUser() {
@@ -295,6 +296,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                     }else{
                         setCurrentUser(newUser);
                         setTokenInHttpHeader(newToken);
+                        refreshUI();
                     }
                 }
             }
@@ -302,8 +304,54 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 t.printStackTrace();
-                tokenView.setText(t.getMessage());
+//                tvCurrentUser.setText(t.getMessage());
                 Log.d(TAG,"fall in getting token:"+t.getMessage());
+            }
+        });
+    }
+
+    private void addNewUser(String usernameStr, String passwordStr) {
+        refreshMyHttpService();
+
+        Call<Map<String, Object>> callToken = myHttpService.getServerQueryWithoutToken()
+                .addNewUser(new User(usernameStr,passwordStr));
+
+        callToken.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+
+                    Map<String, Object> responseBody = response.body();
+                    if(responseBody == null || !responseBody.containsKey("errorCode")){
+                        Log.d(TAG,"fall in adding new user: nullable response body");
+                        return;
+                    }else if(Integer.parseInt((String)responseBody.get("errorCode")) == 1){
+                        Log.d(TAG,"fall in adding new user: User exists (error code = 1)");
+                        tvCurrentUser.setText("This user is already exists!");
+                        return;
+                    }else if(Integer.parseInt((String)responseBody.get("errorCode")) == 0
+                    && responseBody.containsKey("newUser")){
+                        Log.d(TAG,"new user created is server (error code = 0)");
+
+                        User newUser;
+                        try {
+                            newUser = (User) responseBody.get("newUser");
+
+                        }catch(Exception e){
+                            Log.d(TAG,"fall in getting new user response body");
+                            return;
+                        }
+
+                        setCurrentUser(newUser);
+                        Log.d(TAG,"new user adding complete.");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                t.printStackTrace();
+                Log.d(TAG,"fall in adding new user:"+t.getMessage());
             }
         });
     }

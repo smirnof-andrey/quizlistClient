@@ -3,6 +3,7 @@ package com.asmirnov.quizlistclient.service;
 import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.model.User;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,5 +58,9 @@ public interface ServerQuery {
 
     @PUT("/cards/{id}")
     Call<String> updateCards(@Path("id") String id, @Body Map<String, Object> map);
+
+
+    @POST("/newUser")
+    Call<Map<String, Object>> addNewUser(@Body User user);
 
 }
