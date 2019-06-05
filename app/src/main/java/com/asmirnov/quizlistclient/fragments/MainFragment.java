@@ -102,7 +102,7 @@ public class MainFragment extends Fragment{
     private void refreshMyListByTestValues(){
         modulesList.clear();
         for (int i = 0; i < 30;) {
-            modulesList.add(new Module("test module "+ ++i,"!test module info"+i));
+            modulesList.add(new Module(0,"test module "+ ++i,"!test module info"+i));
         }
 
         adapter.notifyDataSetChanged();
@@ -158,11 +158,9 @@ public class MainFragment extends Fragment{
             @Override
             public void onFailure(Call<List<Module>> call, Throwable t) {
                 t.printStackTrace();
-                Toast.makeText(getActivity().getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.d(TAG,"getting user modules from srv. error:"+t.getMessage());
                 refreshMyListByTestValues();
             }
         });
     }
-
 }

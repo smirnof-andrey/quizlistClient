@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.asmirnov.quizlistclient.model.User;
-import com.asmirnov.quizlistclient.service.PreferencesService;
+
+import java.util.Date;
 
 public class DataAccessProvider {
     private final String TAG = "quizlistLogs";
@@ -20,12 +21,13 @@ public class DataAccessProvider {
         this.preferencesService = new PreferencesService(context);
     }
 
+
     public User getCurrentUser() {
         return getCurrentUserFromPreferences();
     }
 
     public void saveCurrentUser(User currentUser) {
-        saveCurrentUserToPreferences(currentUser);
+        saveToPreferences(CURRENT_USER, currentUser);
     }
 
     public String getCurrentURL() {
@@ -36,7 +38,7 @@ public class DataAccessProvider {
         return getCurrentUser() != null;
     }
 
-    public User getCurrentUserFromPreferences() {
+    private User getCurrentUserFromPreferences() {
         try {
             User user = (User) preferencesService.getFromStringPreferences(CURRENT_USER,User.class);
             return user;
@@ -46,7 +48,7 @@ public class DataAccessProvider {
         }
     }
 
-    public String getCurrentURLFromPreferences() {
+    private String getCurrentURLFromPreferences() {
         try {
             String subj = preferencesService.getStringPreferences(SAVED_URL);
             return subj;
@@ -56,8 +58,38 @@ public class DataAccessProvider {
         }
     }
 
-    public void saveCurrentUserToPreferences(User currentUser) {
-        preferencesService.saveToStringPreferences(CURRENT_USER,currentUser);
+    public void saveToPreferences(String attribute, Object obj) {
+        preferencesService.saveToStringPreferences(attribute,obj);
+    }
+
+    public Date getLastCheckDatePreferences() {
+
+        try {
+            Date lastCheckDate = (Date) preferencesService.getFromStringPreferences(LAST_CHECK_DATE,Date.class);
+            if(lastCheckDate==null){
+                Log.d(TAG, "no saved last Check Date.");
+            }else {
+                Log.d(TAG, "last Check Date = " + lastCheckDate);
+            }
+            return lastCheckDate;
+        }catch(Exception e){
+            Log.d(TAG, "fall in getting last Check Date.");
+            return null;
+        }
+    }
+
+
+
+    public String getStringPreferences(String attribute) {
+        String value = preferencesService.getStringPreferences(attribute);
+        if(value.isEmpty()){
+            Log.d(TAG, "no saved "+attribute);
+        }
+        return value;
+    }
+
+    public void saveStringPreferences(String attribute, String value) {
+        preferencesService.saveStringPreferences(attribute,value);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.asmirnov.quizlistclient.fragments;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
@@ -23,16 +21,12 @@ import com.asmirnov.quizlistclient.model.AuthResponse;
 import com.asmirnov.quizlistclient.model.User;
 import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.service.MyHttpService;
-import com.google.gson.Gson;
 
 import java.util.Date;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class AccountFragment extends Fragment implements View.OnClickListener{
 
@@ -62,8 +56,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     private MyHttpService myHttpService;
     private DataAccessProvider dataAccessProvider;
-
-    private SharedPreferences sPref;
 
     @Nullable
     @Override
@@ -113,13 +105,33 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         loadLastCheckDate();
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.buttonGetToken:
+                getToken();
+                break;
+            case R.id.buttonLogin:
+                loginUser();
+                break;
+            case R.id.buttonLogout:
+                logoutUser();
+                break;
+            case R.id.buttonEditServerAddress:
+                changeEditable();
+                break;
+            case R.id.buttonRegistration:
+                registrationUser();
+                break;
+            default:
+                break;
+        }
+    }
+
+    // UI
     private void refreshUI(){
 
-        if(currentUser == null){
-            tvCurrentUser.setText("no current user");
-        }else{
-            tvCurrentUser.setText("you logged as: "+currentUser.getUsername());
-        }
+        refreshUserRepresentation();
 
         refreshUIVisibility();
 
@@ -151,29 +163,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.buttonGetToken:
-                getToken();
-                break;
-            case R.id.buttonLogin:
-                loginUser();
-                break;
-            case R.id.buttonLogout:
-                logoutUser();
-                break;
-            case R.id.buttonEditServerAddress:
-                changeEditable();
-                break;
-            case R.id.buttonRegistration:
-                registrationUser();
-                break;
-            default:
-                break;
-        }
-    }
-
     private void changeEditable() {
         isEditebleServerAddress = !isEditebleServerAddress;
 
@@ -188,83 +177,32 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.WHITE);
     }
 
-    private void loginUser() {
-        getTokenFromServer(username.getText().toString(),password.getText().toString());
+    private void refreshUserRepresentation() {
+        if(currentUser == null){
+            tvCurrentUser.setText("no current user");
+        }else{
+            tvCurrentUser.setText("you logged as: "+currentUser.getUsername());
+            Log.d(TAG, "you logged as: " + currentUser.toString());
+        }
     }
 
-    private void registrationUser() {
-        addNewUser(username.getText().toString(),password.getText().toString());
-    }
-
-    private void logoutUser() {
-        currentUser = null;
-        refreshUI();
-    }
-
+    // Functionality
     private void getToken() {
         getTokenFromServer(currentUser.getUsername(),currentUser.getPassword());
     }
 
-    private void saveURL() {
-        String new_URL = httpURL.getText().toString();
-        savePreferences(SAVED_URL, new_URL);
-        myHttpService.setURL(new_URL);
+    private void loginUser() {
+        getTokenFromServer(username.getText().toString(),password.getText().toString());
     }
 
-    private void loadURL() {
-        httpURL.setText(dataAccessProvider.getCurrentURL());
+    private void logoutUser() {
+        setCurrentUser(null);
+        setNewToken("");
+        refreshUI();
     }
 
-    private void loadUser() {
-        currentUser = dataAccessProvider.getCurrentUser();
-    }
-
-    private void loadToken() {
-        String token = getPreferences(SAVED_TOKEN);
-        if(token==null || token.isEmpty()){
-            tokenView.setText("no saved token");
-            Log.d(TAG, "no saved token");
-        }else{
-            myHttpService.setToken(token);
-            tokenView.setText("token:"+token);
-            Log.d(TAG, "saved token: "+token);
-        }
-    }
-
-    private void loadLastCheckDate() {
-        Date lastCheckDate;
-        Gson gson = new Gson();
-        String json = getPreferences(LAST_CHECK_DATE);
-        try {
-            lastCheckDate = gson.fromJson(json, Date.class);
-            if(lastCheckDate==null){
-                Log.d(TAG, "no saved last Check Date.");
-            }else {
-                Log.d(TAG, "last Check Date = " + lastCheckDate);
-                myHttpService.setLastCheckDate(lastCheckDate);
-            }
-        }catch(Exception e){
-            Toast.makeText(getActivity(), "fall in getting last Check Date", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "fall in getting last Check Date.");
-        }
-    }
-
-    private void savePreferences(String attribute, String value) {
-        sPref = this.getActivity().getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString(attribute, value);
-        ed.commit();
-    }
-
-    private String getPreferences(String attribute) {
-        sPref = this.getActivity().getPreferences(MODE_PRIVATE);
-        String savedText = sPref.getString(attribute, "");
-        return savedText;
-    }
-
-    private void refreshUserRepresentation() {
-        tvCurrentUser.setText("you logged as: "+currentUser.getUsername());
-        Log.d(TAG, "you logged as: "+currentUser.toString());
+    private void registrationUser() {
+        addNewUser(username.getText().toString(),password.getText().toString());
     }
 
     private void getTokenFromServer(String usernameStr, String passwordStr) {
@@ -295,7 +233,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                         tvCurrentUser.setText("empty token body");
                     }else{
                         setCurrentUser(newUser);
-                        setTokenInHttpHeader(newToken);
+                        setNewToken(newToken);
                         refreshUI();
                     }
                 }
@@ -352,37 +290,63 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         });
     }
 
+    private void setNewToken(String newToken) {
+        myHttpService.update(newToken, new Date(), true);
+        tokenView.setText("token:"+myHttpService.getToken());
+        Log.d(TAG,"new token:"+myHttpService.getToken());
+
+        saveToken(myHttpService.getToken());
+        saveLastCheckDate(new Date());
+    }
+
+    // Save and get data
+
     private void setCurrentUser(User newUser) {
         currentUser = newUser;
         dataAccessProvider.saveCurrentUser(currentUser);
         refreshUserRepresentation();
     }
 
-    private void setTokenInHttpHeader(String newToken) {
-        myHttpService.update(newToken, new Date(), true);
-        tokenView.setText("token:"+myHttpService.getToken());
-        Log.d(TAG,"new token:"+myHttpService.getToken());
+    private void saveURL() {
+        String new_URL = httpURL.getText().toString();
+        dataAccessProvider.saveStringPreferences(SAVED_URL, new_URL);
+        myHttpService.setURL(new_URL);
+    }
 
-//        myHttpService.getHttpClient().addInterceptor(new Interceptor() {
-//            @Override
-//            public okhttp3.Response intercept(Chain chain) throws IOException {
-//                Request original = chain.request();
-//
-//                Request request = original.newBuilder()
-//                        .header("Content-Type", "application/json")
-//                        .header("X-Auth-Token", myHttpService.getToken())
-//                        .method(original.method(), original.body())
-//                        .build();
-//
-//                return chain.proceed(request);
-//            }
-//        });
+    private void loadURL() {
+        httpURL.setText(dataAccessProvider.getCurrentURL());
+    }
 
-        savePreferences(SAVED_TOKEN,myHttpService.getToken());
+    private void loadUser() {
+        currentUser = dataAccessProvider.getCurrentUser();
+    }
 
-        Gson gson = new Gson();
-        String json = gson.toJson(myHttpService.getLastCheckDate());
-        savePreferences(LAST_CHECK_DATE,json);
+    private void loadToken() {
+        String token = dataAccessProvider.getStringPreferences(SAVED_TOKEN);
+        if(token.isEmpty()){
+            tokenView.setText("no saved token");
+        }else{
+            myHttpService.setToken(token);
+            tokenView.setText("token:"+token);
+            Log.d(TAG, "saved token: "+token);
+        }
+    }
+
+    private void loadLastCheckDate() {
+
+        Date lastCheckDate = dataAccessProvider.getLastCheckDatePreferences();
+
+        if (lastCheckDate != null) {
+            myHttpService.setLastCheckDate(lastCheckDate);
+        }
+    }
+
+    private void saveToken(String newToken) {
+        dataAccessProvider.saveStringPreferences(SAVED_TOKEN,newToken);
+    }
+
+    private void saveLastCheckDate(Date newDate) {
+        dataAccessProvider.saveToPreferences(LAST_CHECK_DATE,newDate);
     }
 
 }
