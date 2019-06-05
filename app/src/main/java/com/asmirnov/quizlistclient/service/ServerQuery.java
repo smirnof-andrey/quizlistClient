@@ -23,11 +23,15 @@ import retrofit2.http.Query;
 
 public interface ServerQuery {
 
-    // GET + Query || POST + Body
-
+    // user auth
     @GET("/auth")
     Call<AuthResponse> getUserToken(@Query("username") String username, @Query("password") String password);
 
+    @POST("/newUser")
+    Call<AuthResponse> addNewUser(@Body User user);
+
+
+    // module and cards
     @GET("/module/{id}")
     Call<Module> getModuleById(@Path("id") String id);
 
@@ -38,7 +42,6 @@ public interface ServerQuery {
     Call<List<Card>> getCards(@Path("id") String id);
 
 
-    //@FormUrlEncoded
     @POST("/module")
     Call<Module> createModule(@Body Module module);
 
@@ -60,7 +63,6 @@ public interface ServerQuery {
     Call<String> updateCards(@Path("id") String id, @Body Map<String, Object> map);
 
 
-    @POST("/newUser")
-    Call<Map<String, Object>> addNewUser(@Body User user);
+
 
 }

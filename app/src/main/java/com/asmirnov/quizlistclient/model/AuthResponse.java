@@ -7,7 +7,7 @@ public class AuthResponse {
     private User user;
     private String token;
     private String message;
-    private int errorCode;    // 0 - user is found, 1 - user not found, 2 - token generate is fall
+    private int errorCode;    // 0 - user is found, 1 - user not found, 2 - token generate is fall, 3 - User exists (registration)
 
     public AuthResponse() {
         this.token = token;

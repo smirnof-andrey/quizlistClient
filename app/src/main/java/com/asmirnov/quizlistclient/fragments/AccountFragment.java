@@ -174,10 +174,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private void registrationUser() {
-        addNewUser(username.getText().toString(),password.getText().toString());
-    }
-
     private void changeEditable() {
         isEditebleServerAddress = !isEditebleServerAddress;
 
@@ -192,13 +188,17 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.WHITE);
     }
 
+    private void loginUser() {
+        getTokenFromServer(username.getText().toString(),password.getText().toString());
+    }
+
+    private void registrationUser() {
+        addNewUser(username.getText().toString(),password.getText().toString());
+    }
+
     private void logoutUser() {
         currentUser = null;
         refreshUI();
-    }
-
-    private void loginUser() {
-        getTokenFromServer(username.getText().toString(),password.getText().toString());
     }
 
     private void getToken() {
@@ -313,43 +313,39 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
     private void addNewUser(String usernameStr, String passwordStr) {
         refreshMyHttpService();
 
-        Call<Map<String, Object>> callToken = myHttpService.getServerQueryWithoutToken()
+        Call<AuthResponse> callToken = myHttpService.getServerQueryWithoutToken()
                 .addNewUser(new User(usernameStr,passwordStr));
 
-        callToken.enqueue(new Callback<Map<String, Object>>() {
+        callToken.enqueue(new Callback<AuthResponse>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful()) {
 
-                    Map<String, Object> responseBody = response.body();
-                    if(responseBody == null || !responseBody.containsKey("errorCode")){
+                    AuthResponse authResponse = response.body();
+                    if(authResponse == null){
                         Log.d(TAG,"fall in adding new user: nullable response body");
                         return;
-                    }else if(Integer.parseInt((String)responseBody.get("errorCode")) == 1){
-                        Log.d(TAG,"fall in adding new user: User exists (error code = 1)");
-                        tvCurrentUser.setText("This user is already exists!");
+                    }else if(authResponse.getErrorCode() != 0){
+                        Log.d(TAG,"fall in adding new user: "+authResponse.getMessage());
+                        tvCurrentUser.setText(authResponse.getMessage()+"!");
                         return;
-                    }else if(Integer.parseInt((String)responseBody.get("errorCode")) == 0
-                    && responseBody.containsKey("newUser")){
-                        Log.d(TAG,"new user created is server (error code = 0)");
+                    }else{
+                        Log.d(TAG,"new user created in server (error code = 0)");
 
-                        User newUser;
                         try {
-                            newUser = (User) responseBody.get("newUser");
-
+                            User newUser = authResponse.getUser();
+                            setCurrentUser(newUser);
+                            refreshUI();
+                            Log.d(TAG,"new user adding complete.");
                         }catch(Exception e){
                             Log.d(TAG,"fall in getting new user response body");
-                            return;
                         }
-
-                        setCurrentUser(newUser);
-                        Log.d(TAG,"new user adding complete.");
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
                 t.printStackTrace();
                 Log.d(TAG,"fall in adding new user:"+t.getMessage());
             }
