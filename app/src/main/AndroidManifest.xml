@@ -12,10 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ActivityCards"
+            android:name=".UI.ActivityCards"
             android:label="@string/title_activity_cards"></activity>
         <activity
-            android:name=".EditActivity"
+            android:name=".UI.EditActivity"
             android:label="@string/title_edit_activity"
             android:windowSoftInputMode="adjustPan">
         </activity>

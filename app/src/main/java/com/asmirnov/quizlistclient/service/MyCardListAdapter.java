@@ -6,12 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.asmirnov.quizlistclient.EditActivity;
+import com.asmirnov.quizlistclient.UI.EditActivity;
 import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.Card;
 

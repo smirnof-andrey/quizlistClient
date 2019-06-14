@@ -1,8 +1,8 @@
-package com.asmirnov.quizlistclient.model;
+package com.asmirnov.quizlistclient.dto;
+
+import com.asmirnov.quizlistclient.model.User;
 
 public class AuthResponse {
-
-    private Integer id;
 
     private User user;
     private String token;
@@ -41,14 +41,6 @@ public class AuthResponse {
 
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public User getUser() {

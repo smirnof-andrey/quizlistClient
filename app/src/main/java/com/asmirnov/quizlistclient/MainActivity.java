@@ -11,10 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.UI.EditActivity;
 import com.asmirnov.quizlistclient.service.DataAccessProvider;
-import com.asmirnov.quizlistclient.fragments.AccountFragment;
-import com.asmirnov.quizlistclient.fragments.MainFragment;
-import com.asmirnov.quizlistclient.fragments.SearchFragment;
+import com.asmirnov.quizlistclient.UI.fragments.AccountFragment;
+import com.asmirnov.quizlistclient.UI.fragments.MainFragment;
+import com.asmirnov.quizlistclient.UI.fragments.SearchFragment;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.google.gson.Gson;
 

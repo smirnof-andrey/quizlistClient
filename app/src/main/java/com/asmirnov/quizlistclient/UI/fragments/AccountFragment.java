@@ -1,4 +1,4 @@
-package com.asmirnov.quizlistclient.fragments;
+package com.asmirnov.quizlistclient.UI.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
-import com.asmirnov.quizlistclient.model.AuthResponse;
+import com.asmirnov.quizlistclient.dto.AuthResponse;
 import com.asmirnov.quizlistclient.model.User;
 import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.service.MyHttpService;
@@ -130,11 +130,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     // UI
     private void refreshUI(){
-
         refreshUserRepresentation();
-
         refreshUIVisibility();
-
         refreshEditURL();
     }
 
@@ -174,7 +171,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     private void refreshEditURL(){
         httpURL.setInputType(isEditebleServerAddress ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL);
-        httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.WHITE);
+        httpURL.setBackgroundColor(isEditebleServerAddress ? Color.GREEN : Color.parseColor("#EEEEEE"));
     }
 
     private void refreshUserRepresentation() {

@@ -1,4 +1,4 @@
-package com.asmirnov.quizlistclient;
+package com.asmirnov.quizlistclient.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asmirnov.quizlistclient.R;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.MyCardListAdapter;

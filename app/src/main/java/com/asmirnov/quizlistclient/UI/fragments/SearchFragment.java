@@ -1,4 +1,4 @@
-package com.asmirnov.quizlistclient.fragments;
+package com.asmirnov.quizlistclient.UI.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
