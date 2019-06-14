@@ -2,6 +2,10 @@ package com.asmirnov.quizlistclient.service;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import com.asmirnov.quizlistclient.dto.AuthResponse;
+import com.asmirnov.quizlistclient.model.User;
 
 import java.io.IOException;
 import java.util.Date;
@@ -9,14 +13,22 @@ import java.util.Date;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyHttpService implements Parcelable {
+    private static final String TAG = "quizlistLogs";
+    private final String SAVED_TOKEN = "saved_token";
+
     private String URL;
     private String token;
     private Date lastCheckDate;
     private boolean isActual;
+
+    DataAccessProvider dataAccessProvider;
 
     public MyHttpService() {
     }
@@ -31,8 +43,12 @@ public class MyHttpService implements Parcelable {
         this.update(token,lastCheckDate,false);
     }
 
-    public boolean checkUserToken(){
-        return false;
+    public void refreshUserToken(DataAccessProvider dataAccessProvider){
+        this.dataAccessProvider = dataAccessProvider;
+        User user = dataAccessProvider.getCurrentUser();
+        if(user != null) {
+            getTokenFromServer(user.getUsername(), user.getPassword());
+        }
     }
 
     public void update(String token, Date date, boolean isActual){
@@ -119,6 +135,46 @@ public class MyHttpService implements Parcelable {
                 .build();
 
         return retrofit.create(ServerQuery.class);
+    }
+
+    private void getTokenFromServer(String usernameStr, String passwordStr) {
+
+        Call<AuthResponse> callToken = getServerQueryWithoutToken()
+                .getUserToken(usernameStr,passwordStr);
+
+        Log.d(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Log.d(TAG,"Start token refresh");
+        callToken.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (response.isSuccessful()) {
+                    AuthResponse authResponse = response.body();
+                    if(authResponse == null){
+                        Log.d(TAG,"fall in getting token: nullable response body");
+                        return;
+                    }else if(authResponse.getErrorCode() == 1){
+                        Log.d(TAG,"fall in getting token: user is not found (error code = 1)");
+                        return;
+                    }
+                    String newToken = authResponse.getToken();
+                    if(newToken == null || newToken.isEmpty()){
+                        Log.d(TAG,"fall in getting token: empty token body");
+                    }else{
+                        Log.d(TAG,"refreshed token successful");
+                        update(newToken, new Date(), true);
+                        dataAccessProvider.saveStringPreferences(SAVED_TOKEN,newToken);
+                    }
+                }
+                Log.d(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                t.printStackTrace();
+                Log.d(TAG,"fall in getting token:"+t.getMessage());
+                Log.d(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+        });
     }
 
     // Parcelable methods
