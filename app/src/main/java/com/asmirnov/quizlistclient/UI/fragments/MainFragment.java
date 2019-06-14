@@ -1,4 +1,4 @@
-package com.asmirnov.quizlistclient.fragments;
+package com.asmirnov.quizlistclient.UI.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,22 +7,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.asmirnov.quizlistclient.ActivityCards;
+import com.asmirnov.quizlistclient.UI.ActivityCards;
 import com.asmirnov.quizlistclient.MainActivity;
 import com.asmirnov.quizlistclient.R;
-import com.asmirnov.quizlistclient.model.Card;
+import com.asmirnov.quizlistclient.dto.ModuleAdditionalInfo;
 import com.asmirnov.quizlistclient.model.Module;
+import com.asmirnov.quizlistclient.service.DataAccessProvider;
 import com.asmirnov.quizlistclient.service.ModuleListAdapter;
 import com.asmirnov.quizlistclient.service.MyHttpService;
 import com.asmirnov.quizlistclient.service.ServerQuery;
@@ -43,12 +40,10 @@ public class MainFragment extends Fragment{
 
     private MyHttpService myHttpService;
 
-    private ArrayList<Module> modulesList;
+    private ArrayList<ModuleAdditionalInfo> modulesList;
     private ModuleListAdapter adapter;
-    private List<Module> modules;
 
     private ListView listViewModules;
-
 
     @Nullable
     @Override
@@ -60,7 +55,7 @@ public class MainFragment extends Fragment{
 
         // module list
         modulesList = new ArrayList<>();
-        modulesList.add(new Module(0,"no modules",""));
+        modulesList.add(new ModuleAdditionalInfo(new Module(0,"getting modules..."," "),0));
         adapter = new ModuleListAdapter(getActivity(), modulesList);
         listViewModules.setAdapter(adapter);
 
@@ -69,7 +64,7 @@ public class MainFragment extends Fragment{
             public void onItemClick(AdapterView<?> parent, View itemClicked, int position,
                                     long id) {
                 try{
-                    Module currentModule = modulesList.get((int)id);
+                    Module currentModule = modulesList.get((int)id).getModule();
                     Intent intent = new Intent(getActivity(), ActivityCards.class);
                     intent.putExtra("currentModule", currentModule);
                     intent.putExtra("myHttpService", myHttpService);
@@ -102,7 +97,7 @@ public class MainFragment extends Fragment{
     private void refreshMyListByTestValues(){
         modulesList.clear();
         for (int i = 0; i < 30;) {
-            modulesList.add(new Module(0,"test module "+ ++i,"!test module info"+i));
+            modulesList.add(new ModuleAdditionalInfo(new Module(0,"test module "+ ++i,"!test module info"+i),0));
         }
 
         adapter.notifyDataSetChanged();
@@ -128,17 +123,15 @@ public class MainFragment extends Fragment{
 
         ServerQuery serverQuery = retrofit.create(ServerQuery.class);
 
-        Call<List<Module>> call = serverQuery.getModules();
+        Call<List<ModuleAdditionalInfo>> call = serverQuery.getModules();
 
-        call.enqueue(new Callback<List<Module>>() {
+        call.enqueue(new Callback<List<ModuleAdditionalInfo>>() {
             @Override
-            public void onResponse(Call<List<Module>> call, Response<List<Module>> response) {
+            public void onResponse(Call<List<ModuleAdditionalInfo>> call, Response<List<ModuleAdditionalInfo>> response) {
                 if (response.isSuccessful()) {
 
-                    modules = response.body();
-
                     modulesList.clear();
-                    modulesList.addAll((ArrayList<Module>) modules);
+                    modulesList.addAll((ArrayList<ModuleAdditionalInfo>) response.body());
 
                     adapter.notifyDataSetChanged();
 
@@ -147,7 +140,9 @@ public class MainFragment extends Fragment{
                     switch (rawCode){
                         case 500:{
                             Log.d(TAG, "not valid token. need to refresh it!");
-                            Toast.makeText(getActivity().getApplicationContext(), "not valid token. need to refresh it!", Toast.LENGTH_LONG).show();
+                            myHttpService.refreshUserToken(new DataAccessProvider(getActivity()));
+                            Toast.makeText(getActivity().getApplicationContext(), "refreshing token. try again later", Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getActivity().getApplicationContext(), "not valid token. need to refresh it!", Toast.LENGTH_LONG).show();
                             break;
                         }
                     }
@@ -156,10 +151,14 @@ public class MainFragment extends Fragment{
             }
 
             @Override
-            public void onFailure(Call<List<Module>> call, Throwable t) {
+            public void onFailure(Call<List<ModuleAdditionalInfo>> call, Throwable t) {
                 t.printStackTrace();
-                Log.d(TAG,"getting user modules from srv. error:"+t.getMessage());
-                refreshMyListByTestValues();
+                String msg = t.getMessage();
+                Log.d(TAG,"getting user modules from srv. error:"+msg);
+//                if(!msg.equals("")){
+//                    Toast.makeText(getActivity().getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+//                }
+//                refreshMyListByTestValues();
             }
         });
     }

@@ -1,21 +1,18 @@
 package com.asmirnov.quizlistclient.service;
 
-import com.asmirnov.quizlistclient.model.AuthResponse;
+import com.asmirnov.quizlistclient.dto.AuthResponse;
+import com.asmirnov.quizlistclient.dto.ModuleAdditionalInfo;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.model.User;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -36,7 +33,7 @@ public interface ServerQuery {
     Call<Module> getModuleById(@Path("id") String id);
 
     @GET("/module")
-    Call<List<Module>> getModules();
+    Call<List<ModuleAdditionalInfo>> getModules();
 
     @GET("/cards/{id}")   //@GET("/module/{id}/cards")  //
     Call<List<Card>> getCards(@Path("id") String id);

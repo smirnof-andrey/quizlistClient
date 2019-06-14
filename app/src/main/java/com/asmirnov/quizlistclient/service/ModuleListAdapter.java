@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.asmirnov.quizlistclient.R;
+import com.asmirnov.quizlistclient.dto.ModuleAdditionalInfo;
 import com.asmirnov.quizlistclient.model.Module;
 
 import java.util.ArrayList;
@@ -16,9 +17,9 @@ public class ModuleListAdapter extends BaseAdapter {
 
     Context context;
     LayoutInflater lInflater;
-    ArrayList<Module> modulesList;
+    ArrayList<ModuleAdditionalInfo> modulesList;
 
-    public ModuleListAdapter(Context context, ArrayList<Module> modulesList) {
+    public ModuleListAdapter(Context context, ArrayList<ModuleAdditionalInfo> modulesList) {
         this.context = context;
         this.modulesList = modulesList;
         lInflater = (LayoutInflater) this.context
@@ -48,16 +49,19 @@ public class ModuleListAdapter extends BaseAdapter {
             view = lInflater.inflate(R.layout.module_list_item, parent, false);
         }
 
-        Module module = getModule(position);
+        ModuleAdditionalInfo mai = (ModuleAdditionalInfo) getItem(position);
+        Module module = mai.getModule();
+        Integer itemCount = mai.getItemsCount();
 
         ((TextView) view.findViewById(R.id.textview_name)).setText(module.getName());
-        ((TextView) view.findViewById(R.id.textview_moduleSize)).setText("0 items");
+        ((TextView) view.findViewById(R.id.textview_moduleSize)).setText(""+itemCount+" items");
         ((TextView) view.findViewById(R.id.textview_info)).setText(module.getInfo());
 
         return view;
     }
 
     Module getModule(int position) {
-        return ((Module) getItem(position));
+        ModuleAdditionalInfo mai = (ModuleAdditionalInfo) getItem(position);
+        return (mai.getModule());
     }
 }
