@@ -2,6 +2,7 @@ package com.asmirnov.quizlistclient.service;
 
 import com.asmirnov.quizlistclient.dto.AuthResponse;
 import com.asmirnov.quizlistclient.dto.ModuleAdditionalInfo;
+import com.asmirnov.quizlistclient.dto.ModuleCardsDTO;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.model.User;
@@ -22,7 +23,7 @@ public interface ServerQuery {
 
     // user auth
     @GET("/auth")
-    Call<AuthResponse> getUserToken(@Query("username") String username, @Query("password") String password);
+    Call<AuthResponse> userAuthentication(@Query("username") String username, @Query("password") String password);
 
     @POST("/newUser")
     Call<AuthResponse> addNewUser(@Body User user);
@@ -46,7 +47,8 @@ public interface ServerQuery {
     Call<Card> createCard(@Path("id") String id, @Body Card card);
 
     @POST("/cards")
-    Call<String> createCards(@Body Map<String, Object> map);
+    Call<ModuleCardsDTO> createCards(@Body ModuleCardsDTO requestDTO);
+//    Call<String> createCards(@Body Map<String, Object> map);
 
 
     @DELETE("/module/{id}")
@@ -57,7 +59,7 @@ public interface ServerQuery {
     Call<Module> updateModule(@Path("id") String id, @Body Module module);
 
     @PUT("/cards/{id}")
-    Call<String> updateCards(@Path("id") String id, @Body Map<String, Object> map);
+    Call<ModuleCardsDTO> updateCards(@Path("id") String id, @Body ModuleCardsDTO requestDTO);
 
 
 

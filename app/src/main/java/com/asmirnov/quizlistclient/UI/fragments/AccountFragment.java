@@ -185,11 +185,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
 
     // Functionality
     private void getToken() {
-        getTokenFromServer(currentUser.getUsername(),currentUser.getPassword());
+        userAuthenticationFromServer(currentUser.getUsername(),currentUser.getPassword());
     }
 
     private void loginUser() {
-        getTokenFromServer(username.getText().toString(),password.getText().toString());
+        userAuthenticationFromServer(username.getText().toString(),password.getText().toString());
     }
 
     private void logoutUser() {
@@ -202,12 +202,12 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
         addNewUser(username.getText().toString(),password.getText().toString());
     }
 
-    private void getTokenFromServer(String usernameStr, String passwordStr) {
+    private void userAuthenticationFromServer(String usernameStr, String passwordStr) {
 
         refreshMyHttpService();
 
         Call<AuthResponse> callToken = myHttpService.getServerQueryWithoutToken()
-                .getUserToken(usernameStr,passwordStr);
+                .userAuthentication(usernameStr,passwordStr);
 
         callToken.enqueue(new Callback<AuthResponse>() {
             @Override

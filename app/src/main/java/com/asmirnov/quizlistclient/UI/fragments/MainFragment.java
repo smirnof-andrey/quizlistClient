@@ -131,7 +131,9 @@ public class MainFragment extends Fragment{
                 if (response.isSuccessful()) {
 
                     modulesList.clear();
-                    modulesList.addAll((ArrayList<ModuleAdditionalInfo>) response.body());
+                    if(response.body().size() > 0) {
+                        modulesList.addAll((ArrayList<ModuleAdditionalInfo>) response.body());
+                    }
 
                     adapter.notifyDataSetChanged();
 

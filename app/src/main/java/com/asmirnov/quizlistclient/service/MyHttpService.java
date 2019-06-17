@@ -140,7 +140,7 @@ public class MyHttpService implements Parcelable {
     private void getTokenFromServer(String usernameStr, String passwordStr) {
 
         Call<AuthResponse> callToken = getServerQueryWithoutToken()
-                .getUserToken(usernameStr,passwordStr);
+                .userAuthentication(usernameStr,passwordStr);
 
         Log.d(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         Log.d(TAG,"Start token refresh");

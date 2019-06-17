@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.asmirnov.quizlistclient.R;
+import com.asmirnov.quizlistclient.dto.ModuleCardsDTO;
 import com.asmirnov.quizlistclient.model.Card;
 import com.asmirnov.quizlistclient.model.Module;
 import com.asmirnov.quizlistclient.service.MyAdapterInterface;
@@ -216,27 +217,32 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
 
     private void updateModuleCards() {
 
+        ModuleCardsDTO requestDTO = new ModuleCardsDTO();
+        requestDTO.setModule(currentModule);
+        requestDTO.setCardList(cardsList);
+
         Map<String, Object> map = new HashMap();
         map.put("module", currentModule);
         map.put("cardsList", cardsList);
 
-        Call<String> call;
+        Call<ModuleCardsDTO> call;
         if(editMode) {
             call = myHttpService.getServerQuery().updateCards(
                     currentModule.getId().toString(),
-                    map
+                    requestDTO
             );
         }else{
-            call = myHttpService.getServerQuery().createCards(map);
+            call = myHttpService.getServerQuery().createCards(requestDTO);
         }
 
-        call.enqueue(new Callback<String>() {
+        call.enqueue(new Callback<ModuleCardsDTO>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<ModuleCardsDTO> call, Response<ModuleCardsDTO> response) {
                 if (response.isSuccessful()) {
-                    String resp = response.body();
-                    if(!resp.isEmpty()){
-                        Log.d(TAG, "Update module cards error. ErrorMessage:" + resp
+                    ModuleCardsDTO resp = response.body();
+                    if(resp.getResponseCode() == 0) {
+                    }else {
+                        Log.d(TAG, "Update module cards error. ErrorMessage:" + resp.getErrorInfo()
                                 + ", server code:" + response.code());
                     }
                 }
@@ -244,7 +250,7 @@ public class EditActivity extends AppCompatActivity implements MyAdapterInterfac
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<ModuleCardsDTO> call, Throwable t) {
                 t.printStackTrace();
                 finishWithAnswer();
             }
