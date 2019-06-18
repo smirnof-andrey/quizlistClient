@@ -217,22 +217,22 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                     AuthResponse authResponse = response.body();
                     if(authResponse == null){
                         Log.d(TAG,"fall in getting token: nullable response body");
-                        return;
-                    }else if(authResponse.getErrorCode() == 1){
-                        Log.d(TAG,"fall in getting token: user is not found (error code = 1)");
-                        tvCurrentUser.setText("user is not found");
-                        return;
-                    }
-                    String newToken = authResponse.getToken();
-                    User newUser = authResponse.getUser();
-                    if(newToken == null || newToken.isEmpty()){
-                        Log.d(TAG,"fall in getting token: empty token body");
-                        tvCurrentUser.setText("empty token body");
+                    }else if(authResponse.getResponseCode() == 0){
+                        String newToken = authResponse.getToken();
+                        User newUser = authResponse.getUser();
+                        if(newToken == null || newToken.isEmpty()){
+                            Log.d(TAG,"fall in getting token: empty token body");
+                            tvCurrentUser.setText("empty token body");
+                        }else{
+                            setCurrentUser(newUser);
+                            setNewToken(newToken);
+                            refreshUI();
+                        }
                     }else{
-                        setCurrentUser(newUser);
-                        setNewToken(newToken);
-                        refreshUI();
+                        Log.d(TAG,authResponse.getMessage()+" (error code = "+authResponse.getResponseCode()+")");
+                        tvCurrentUser.setText("user is not found");
                     }
+
                 }
             }
 
@@ -260,7 +260,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener{
                     if(authResponse == null){
                         Log.d(TAG,"fall in adding new user: nullable response body");
                         return;
-                    }else if(authResponse.getErrorCode() != 0){
+                    }else if(authResponse.getResponseCode() != 0){
                         Log.d(TAG,"fall in adding new user: "+authResponse.getMessage());
                         tvCurrentUser.setText(authResponse.getMessage()+"!");
                         return;
