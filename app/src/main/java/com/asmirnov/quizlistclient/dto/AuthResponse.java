@@ -7,16 +7,16 @@ public class AuthResponse {
     private User user;
     private String token;
     private String message;
-    private int errorCode;    // 0 - user is found, 1 - user not found, 2 - token generate is fall, 3 - User exists (registration)
+    private int responseCode;    // 0 - user is found, 1 - user not found, 2 - token generate is fall, 3 - User exists (registration)
 
     public AuthResponse() {
         this.token = token;
     }
 
-    public AuthResponse(String token, String message, int errorCode) {
+    public AuthResponse(String token, String message, int responseCode) {
         this.token = token;
         this.message = message;
-        this.errorCode = errorCode;
+        this.responseCode = responseCode;
     }
 
     public String getToken() {
@@ -27,8 +27,8 @@ public class AuthResponse {
         return message;
     }
 
-    public int getErrorCode() {
-        return errorCode;
+    public int getResponseCode() {
+        return responseCode;
     }
 
     public void setToken(String token) {
@@ -39,8 +39,8 @@ public class AuthResponse {
         this.message = message;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
     }
 
     public User getUser() {

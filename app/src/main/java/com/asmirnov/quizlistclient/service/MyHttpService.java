@@ -152,7 +152,7 @@ public class MyHttpService implements Parcelable {
                     if(authResponse == null){
                         Log.d(TAG,"fall in getting token: nullable response body");
                         return;
-                    }else if(authResponse.getErrorCode() == 1){
+                    }else if(authResponse.getResponseCode() == 1){
                         Log.d(TAG,"fall in getting token: user is not found (error code = 1)");
                         return;
                     }
